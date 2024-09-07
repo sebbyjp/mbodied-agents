@@ -10,3 +10,6 @@ get: Any
 
 # Add a note to clarify this is a stub file
 __all__ = ['asdict', 'load', 'get']
+
+# Rename note
+# This file was renamed from conf.pyi to conf_stub.pyi to avoid conflicts with docs/conf.py
