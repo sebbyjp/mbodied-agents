@@ -15,7 +15,7 @@ if any('stubgen' in arg for arg in sys.argv):
 
 sys.path.insert(0, os.path.abspath(".."))
 sys.path.insert(0, os.path.abspath("../examples/servers"))
-sys.path.insert(0, os.path.abspath("../examples"))  # Add this line
+sys.path.insert(0, os.path.abspath("../examples"))
 
 project = "Mbodied Agents"
 copyright = "2024, mbodi ai team"
@@ -27,7 +27,7 @@ author = "mbodi ai team"
 extensions = ["sphinx.ext.todo", "sphinx.ext.viewcode", "sphinx.ext.autodoc", "sphinx.ext.napoleon"]
 
 templates_path = ["_templates"]
-exclude_patterns = ["_build", "Thumbs.db", ".DS_Store"]
+exclude_patterns = ["_build", "Thumbs.db", ".DS_Store", "stubs"]
 
 
 # -- Options for HTML output -------------------------------------------------
