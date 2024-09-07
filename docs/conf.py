@@ -1,10 +1,4 @@
 # Configuration file for the Sphinx documentation builder.
-#
-# For the full list of built-in configuration values, see the documentation:
-# https://www.sphinx-doc.org/en/master/usage/configuration.html
-
-# -- Project information -----------------------------------------------------
-# https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
 
 import os
 import sys
@@ -13,16 +7,15 @@ import sys
 if any('stubgen' in arg for arg in sys.argv):
     raise ImportError("Skipping conf.py for stubgen")
 
-sys.path.insert(0, os.path.abspath(".."))
-sys.path.insert(0, os.path.abspath("../examples/servers"))
-sys.path.insert(0, os.path.abspath("../examples"))
+# Only add paths if not running stubgen
+if not any('stubgen' in arg for arg in sys.argv):
+    sys.path.insert(0, os.path.abspath(".."))
+    sys.path.insert(0, os.path.abspath("../examples/servers"))
+    sys.path.insert(0, os.path.abspath("../examples"))
 
 project = "Mbodied Agents"
 copyright = "2024, mbodi ai team"
 author = "mbodi ai team"
-
-# -- General configuration ---------------------------------------------------
-# https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
 
 extensions = ["sphinx.ext.todo", "sphinx.ext.viewcode", "sphinx.ext.autodoc", "sphinx.ext.napoleon"]
 
