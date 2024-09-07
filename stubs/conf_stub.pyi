@@ -1,2 +1,4 @@
-# This stub file is renamed to avoid conflicts with docs/conf.py
-# It should contain any necessary type information for the conf module
+import conf as conf
+from conf.reader import asdict as asdict, load as load
+
+get: builtin_function_or_method
