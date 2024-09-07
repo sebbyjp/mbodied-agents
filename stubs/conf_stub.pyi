@@ -7,3 +7,6 @@ def asdict() -> Dict[str, Any]: ...
 def load() -> Any: ...
 
 get: Any
+
+# Add a note to clarify this is a stub file
+__all__ = ['asdict', 'load', 'get']
