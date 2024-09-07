@@ -27,7 +27,7 @@ author = "mbodi ai team"
 extensions = ["sphinx.ext.todo", "sphinx.ext.viewcode", "sphinx.ext.autodoc", "sphinx.ext.napoleon"]
 
 templates_path = ["_templates"]
-exclude_patterns = ["_build", "Thumbs.db", ".DS_Store", "stubs"]
+exclude_patterns = ["_build", "Thumbs.db", ".DS_Store", "stubs", "examples"]
 
 
 # -- Options for HTML output -------------------------------------------------
