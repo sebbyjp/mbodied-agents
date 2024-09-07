@@ -9,7 +9,9 @@
 import os
 import sys
 
-sys.path.insert(0, os.path.abspath(".."))
+# Prevent stubgen from processing this file
+if 'stubgen' not in sys.modules:
+    sys.path.insert(0, os.path.abspath(".."))
 
 project = "Mbodied Agents"
 copyright = "2024, mbodi ai team"
