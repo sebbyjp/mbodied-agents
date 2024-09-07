@@ -1,1 +1,1 @@
-# This file is intentionally left empty to avoid conflicts.
+# This stub file is renamed to avoid conflicts with docs/conf.py
