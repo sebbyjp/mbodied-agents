@@ -10,12 +10,11 @@ import os
 import sys
 
 # Prevent stubgen from processing this file
-if 'stubgen' not in sys.modules:
-    sys.path.insert(0, os.path.abspath(".."))
-    sys.path.insert(0, os.path.abspath("../examples/servers"))
-else:
-    # If stubgen is running, don't process this file
+if any('stubgen' in arg for arg in sys.argv):
     raise ImportError("Skipping conf.py for stubgen")
+
+sys.path.insert(0, os.path.abspath(".."))
+sys.path.insert(0, os.path.abspath("../examples/servers"))
 
 project = "Mbodied Agents"
 copyright = "2024, mbodi ai team"
