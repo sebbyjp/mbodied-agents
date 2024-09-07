@@ -14,3 +14,8 @@ __all__ = ['OpenVLAInterface', 'create_interface']
 # This is a stub file and should not be imported directly
 if __name__ == '__main__':
     raise ImportError("This is a stub file and should not be imported directly.")
+
+# Prevent this stub from being processed by stubgen
+import sys
+if any('stubgen' in arg for arg in sys.argv):
+    raise ImportError("Skipping gradio_example_openvla_stub.pyi for stubgen")
