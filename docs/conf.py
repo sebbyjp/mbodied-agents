@@ -9,7 +9,7 @@
 import os
 import sys
 
-sys.path.insert(0, os.path.abspath("../mbodied"))
+sys.path.insert(0, os.path.abspath(".."))
 
 project = "Mbodied Agents"
 copyright = "2024, mbodi ai team"
