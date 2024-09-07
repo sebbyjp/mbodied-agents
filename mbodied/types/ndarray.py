@@ -18,3 +18,37 @@ import pydantic_numpy.typing as pnd
 
 NumpyArray = pnd.NpNDArray
 NumpyArrayFp32 = pnd.NpNDArrayFp32
+
+from typing import Generic, TypeVar, Tuple
+
+# Define a type variable for the data type of the array
+T = TypeVar('T')
+
+from mypy.plugin import Plugin, AnalyzeTypeContext
+from mypy.types import Type, TypeOfAny
+from mypy.nodes import ARG_POS, Argument, CallExpr, TypeInfo, Var
+
+# The hook that processes NumpyArray type annotations
+class NumpyArrayPlugin(Plugin):
+    def get_type_analyze_hook(self, fullname: str):
+        if fullname == '__main__.NumpyArray':  # Replace with the actual path to NumpyArray
+            return numpyarray_hook
+        return None
+
+# Hook that processes the type annotation
+def numpyarray_hook(ctx: AnalyzeTypeContext) -> Type:
+    # Parse the shape and dtype from the annotation
+    shape_args = ctx.type.args[0]  # First argument is shape
+    dtype_arg = ctx.type.args[1]    # Second argument is dtype
+    
+    # Check if shape and dtype are valid (you can enforce more complex rules here)
+    if isinstance(shape_args, tuple) and isinstance(dtype_arg, TypeInfo):
+        # You can perform type validation here if needed
+        pass
+    
+    # Return the processed type
+    return ctx.api.named_type('__main__.NumpyArray', [shape_args, dtype_arg])
+
+# Register the plugin
+def plugin(version: str):
+    return NumpyArrayPlugin
