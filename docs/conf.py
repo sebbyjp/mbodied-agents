@@ -3,15 +3,9 @@
 import os
 import sys
 
-# Prevent stubgen from processing this file
-if any('stubgen' in arg for arg in sys.argv):
-    raise ImportError("Skipping conf.py for stubgen")
-
-# Only add paths if not running stubgen
-if not any('stubgen' in arg for arg in sys.argv):
-    sys.path.insert(0, os.path.abspath(".."))
-    sys.path.insert(0, os.path.abspath("../examples/servers"))
-    sys.path.insert(0, os.path.abspath("../examples"))
+sys.path.insert(0, os.path.abspath(".."))
+sys.path.insert(0, os.path.abspath("../examples/servers"))
+sys.path.insert(0, os.path.abspath("../examples"))
 
 project = "Mbodied Agents"
 copyright = "2024, mbodi ai team"
@@ -20,7 +14,7 @@ author = "mbodi ai team"
 extensions = ["sphinx.ext.todo", "sphinx.ext.viewcode", "sphinx.ext.autodoc", "sphinx.ext.napoleon"]
 
 templates_path = ["_templates"]
-exclude_patterns = ["_build", "Thumbs.db", ".DS_Store", "stubs", "examples"]
+exclude_patterns = ["_build", "Thumbs.db", ".DS_Store", "stubs"]
 
 
 # -- Options for HTML output -------------------------------------------------
