@@ -1,1 +1,4 @@
-# This file is intentionally left empty and will be deleted.
+import conf as conf
+from conf.reader import asdict as asdict, load as load
+
+get: builtin_function_or_method
