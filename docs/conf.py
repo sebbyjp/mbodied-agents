@@ -15,6 +15,7 @@ if any('stubgen' in arg for arg in sys.argv):
 
 sys.path.insert(0, os.path.abspath(".."))
 sys.path.insert(0, os.path.abspath("../examples/servers"))
+sys.path.insert(0, os.path.abspath("../examples"))  # Add this line
 
 project = "Mbodied Agents"
 copyright = "2024, mbodi ai team"
