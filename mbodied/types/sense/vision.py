@@ -278,9 +278,10 @@ class Image(Sample):
                     return None
             if not url.startswith("http"):
                 raise ValueError("URL must start with 'http' or 'https'.")
-            request = urllib.request.Request(url, None, headers)  # The assembled request
-            response = urllib.request.urlopen(request)
-            data = response.read()  # The data u need
+            import requests
+            response = requests.get(url, headers=headers, timeout=10)
+            response.raise_for_status()
+            data = response.content
             return PILModule.open(io.BytesIO(data)).convert("RGB")
         except Exception as e:
             logging.warning(f"Failed to load image from URL: {url}. {e}")
