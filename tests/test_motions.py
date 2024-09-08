@@ -19,6 +19,7 @@ import logging
 from pathlib import Path
 import h5py
 from tempfile import TemporaryDirectory
+from mbodied.data.recording import Recorder
 
 from mbodied.types.motion.control import (
     LocationAngle,
