@@ -1,3 +1,4 @@
-from . import embdata as data
+from . import embdata
+from .embdata import *
 
-__all__ = ['data']
+__all__ = ['embdata']
