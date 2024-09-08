@@ -190,3 +190,5 @@ wandb/
 .tmp_speak*
 saved_datasets/
 site/
+
+.aider*

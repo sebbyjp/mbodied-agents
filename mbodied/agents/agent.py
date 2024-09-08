@@ -20,10 +20,13 @@ from pathlib import Path
 from typing import Literal
 
 from mbodied.agents.backends import AnthropicBackend, GradioBackend, HttpxBackend, OllamaBackend, OpenAIBackend
-from mbodied.data.recording import Recorder
-from mbodied.types.sample import Sample
+from mbodied.olddata.recording import Recorder
 
 Backend = AnthropicBackend | GradioBackend | OpenAIBackend | HttpxBackend | OllamaBackend
+
+
+from mbodied.data import sample
+from mbodied.data.sample import Sample
 
 
 class Agent:

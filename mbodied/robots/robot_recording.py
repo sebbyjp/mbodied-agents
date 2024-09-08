@@ -2,10 +2,6 @@ import threading
 import time
 from queue import Queue
 from typing import Any, Callable, Literal
-
-from mbodied.data.recording import Recorder
-
-
 class RobotRecorder:
     """A class for recording robot observation and actions.
 
