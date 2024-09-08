@@ -36,4 +36,4 @@ __getattr__ = getattr_migration(__name__)
 
 # Expose to_features_dict as to_features for backward compatibility
 
-__all__ = [module.__name__ for module in dir(embdata) if not module.startswith('_')]
+__all__ = [module for module in dir(embdata) if not module.startswith('_')]
