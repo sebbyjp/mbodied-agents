@@ -1,19 +1,16 @@
 # Provide backwards compatibility for old imports
 import sys
 import warnings
-import embdata
 from typing import Any, Callable
-
-from embdata import episode, sense
-from embdata.sample import Sample
-from embdata.utils.import_utils import smart_import
 
 # Import and re-export the features module and its contents
 from . import features
 from .features import *
 
-# Re-export the modules and functions
-
+# Import other necessary modules
+from embdata import episode, sense
+from embdata.sample import Sample
+from embdata.utils.import_utils import smart_import
 
 def getattr_migration(module_name: str) -> Callable[[str], Any]:
     """Implement PEP 562 for objects that were either moved or removed on the migration to V2."""
@@ -36,5 +33,6 @@ def getattr_migration(module_name: str) -> Callable[[str], Any]:
 __getattr__ = getattr_migration(__name__)
 
 # Expose to_features_dict as to_features for backward compatibility
+from .features import to_features_dict as to_features
 
-__all__ = [module for module in dir(embdata) if not module.startswith('_')] + ['features', 'to_features']
+__all__ = ['features', 'to_features', 'episode', 'sense', 'Sample', 'smart_import']
