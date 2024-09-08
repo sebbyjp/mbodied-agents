@@ -25,7 +25,6 @@ from mbodied.olddata.recording import Recorder
 Backend = AnthropicBackend | GradioBackend | OpenAIBackend | HttpxBackend | OllamaBackend
 
 
-from mbodied.data import sample
 from mbodied.data.sample import Sample
 
 
