@@ -49,3 +49,17 @@ def getattr_migration(module: str) -> Callable[[str], Any]:
         return globals[module]
 
     return wrapper
+import sys
+from types import ModuleType
+
+import embdata
+
+# Create a new module named 'mbodied.data'
+data = ModuleType("mbodied.data")
+sys.modules["mbodied.data"] = data
+
+for module in [module for module in dir(embdata) if not module.startswith("__")]:
+    setattr(data, module, getattr(embdata, module))
+    globals()[module] = getattr(embdata, module)
+
+__all__ = [module for module in dir(embdata) if not module.startswith("__")]
