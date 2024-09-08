@@ -1,14 +1,14 @@
+import base64
+import json
 import logging
+from typing import TYPE_CHECKING
 
 import numpy as np
 
-try:
-    import pyrealsense2 as rs
-except ImportError:
-    logging.warning("pyrealsense2 is not installed.")
-import base64
-import json
+from mbodied.data.utils.import_utils import smart_import
 
+if TYPE_CHECKING:
+    import pyrealsense2.pyrealsense2 as rs
 
 class RealsenseCamera:
     """A class to handle capturing images from an Intel RealSense camera and encoding camera intrinsics.
@@ -33,6 +33,7 @@ class RealsenseCamera:
             height (int): Height of the image frames.
             fps (int): Frames per second for the video stream.
         """
+        rs = smart_import("pyrealsense2.pyrealsense2")
         self.width = width
         self.height = height
         self.fps = fps
@@ -45,7 +46,7 @@ class RealsenseCamera:
         self.depth_scale = self.depth_sensor.get_depth_scale()
         self.align = rs.align(rs.stream.color)
 
-    def capture_realsense_images(self) -> tuple[np.ndarray, np.ndarray, rs.intrinsics, np.ndarray]:
+    def capture_realsense_images(self) -> tuple[np.ndarray, np.ndarray, "rs.intrinsics", np.ndarray]:
         """Capture color and depth images from the RealSense camera along with intrinsics.
 
         Returns:
