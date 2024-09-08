@@ -446,7 +446,7 @@ class Image(Sample):
             return {"size": self.size, "url": self.url, "encoding": self.encoding}
         return {"base64": self.base64, "size": self.size, "url": self.url, "encoding": self.encoding}
 
-    def dump(self, *args, as_field: str | None = None, **kwargs) -> dict | Any:
+    def dump(self, as_field: str | None = None) -> dict | Any:
         """Return a dict or a field of the image."""
         if as_field is not None:
             return getattr(self, as_field)
