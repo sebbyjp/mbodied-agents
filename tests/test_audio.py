@@ -16,6 +16,7 @@ import os
 import pytest
 from unittest.mock import MagicMock, mock_open
 from mbodied.agents.sense.audio.audio_agent import AudioAgent
+from mbodied.data.recording import Recorder
 
 
 @pytest.fixture

@@ -3,6 +3,7 @@ from mbodied.types.motion.control import HandControl
 from mbodied.types.sense.vision import Image
 from mbodied.robots.robot_recording import RobotRecorder
 from mbodied.data.replaying import Replayer
+from mbodied.data.recording import Recorder
 from mbodied.robots import SimRobot
 from tempfile import TemporaryDirectory
 from gymnasium import spaces
