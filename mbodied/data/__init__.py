@@ -7,12 +7,11 @@ from embdata import episode, features, sense
 from embdata.sample import Sample
 from embdata.utils.import_utils import smart_import
 
-# Re-export the modules and functions
-__all__ = ['Sample', 'sense', 'episode', 'features', 'to_features_dict']
-
 # Import and re-export the to_features function
 from embdata.features import to_features_dict
 
+# Re-export the modules and functions
+__all__ = ['Sample', 'sense', 'episode', 'features', 'to_features_dict']
 
 def getattr_migration(module_name: str) -> Callable[[str], Any]:
     """Implement PEP 562 for objects that were either moved or removed on the migration to V2."""
@@ -20,6 +19,8 @@ def getattr_migration(module_name: str) -> Callable[[str], Any]:
         if name == "__path__":
             raise AttributeError(f"module {module_name!r} has no attribute {name!r}")
         try:
+            if name == 'features':
+                return sys.modules[__name__]
             import_path = f"embdata.{name}"
             imported_module = smart_import(import_path)
         except ModuleNotFoundError as e:
@@ -31,3 +32,6 @@ def getattr_migration(module_name: str) -> Callable[[str], Any]:
     return wrapper
 
 __getattr__ = getattr_migration(__name__)
+
+# Expose to_features_dict as to_features for backward compatibility
+to_features = to_features_dict
