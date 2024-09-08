@@ -254,6 +254,7 @@ class Image(Sample):
 
         Args:
             url (str): The URL of the image to download, or a base64 data URI.
+            download (bool, optional): If True, prompts the user before downloading. Defaults to False.
 
         Returns:
             PIL.Image.Image: The downloaded and decoded image as a PIL Image object.
