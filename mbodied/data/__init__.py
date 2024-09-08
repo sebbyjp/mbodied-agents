@@ -3,10 +3,6 @@ import sys
 import warnings
 from typing import Any, Callable
 
-# Import and re-export the features module and its contents
-from . import features
-from .features import *
-
 # Import other necessary modules
 from embdata import episode, sense
 from embdata.sample import Sample
@@ -33,6 +29,9 @@ def getattr_migration(module_name: str) -> Callable[[str], Any]:
 __getattr__ = getattr_migration(__name__)
 
 # Expose to_features_dict as to_features for backward compatibility
-from .features import to_features_dict as to_features
+def to_features(*args, **kwargs):
+    warnings.warn("to_features is deprecated. Use embdata.features.to_features_dict instead.", DeprecationWarning, stacklevel=2)
+    from embdata.features import to_features_dict
+    return to_features_dict(*args, **kwargs)
 
-__all__ = ['features', 'to_features', 'episode', 'sense', 'Sample', 'smart_import']
+__all__ = ['to_features', 'episode', 'sense', 'Sample', 'smart_import']
