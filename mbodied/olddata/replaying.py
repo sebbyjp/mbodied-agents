@@ -25,7 +25,9 @@ from h5py import string_dtype
 from huggingface_hub import login
 from PIL import Image as PILImage
 
-from mbodied.data.utils import infer_features
+from embdata.utils.import_utils import smart_import
+
+infer_features = smart_import("mbodied.data.utils.infer_features")
 from mbodied.types.sample import Sample
 from mbodied.types.sense.vision import Image as MbImage
 
