@@ -37,6 +37,16 @@ from pathlib import Path
 from typing import Any, Tuple, Union
 from urllib.parse import urlparse
 
+try:
+    import pyaudio
+except ImportError:
+    pyaudio = None
+
+try:
+    from playsound import playsound
+except ImportError:
+    playsound = None
+
 import numpy as np
 from datasets.features import Features
 from datasets.features import Image as HFImage
@@ -79,7 +89,8 @@ class Image(Sample):
     Examples:
         >>> image = Image("https://example.com/image.jpg")
         >>> image = Image("/path/to/image.jpg")
-        >>> image = Image("data:image/jpeg;base64,/9j/4AAQSkZJRgABAQEAYABgAAD/4Q3zaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wLwA")
+        >>> image = Image("data:image/jpeg;base64,/9j/4AAQSkZJRgABAQEAYABgAAD/"
+        ...              "4Q3zaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wLwA")
 
         >>> jpeg_from_png = Image("path/to/image.png", encoding="jpeg")
         >>> resized_image = Image(image, size=(224, 224))
