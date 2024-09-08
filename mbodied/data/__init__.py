@@ -42,6 +42,6 @@ def getattr_migration(module_name: str) -> Callable[[str], Any]:
     return wrapper
 
 # Import all from embdata
-from embdata import *
+from embdata import sense, sample, episode, features
 
 __all__ = [name for name in dir() if not name.startswith("_")]
