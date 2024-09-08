@@ -30,4 +30,5 @@ def getattr_migration(module_name: str) -> Callable[[str], Any]:
     return wrapper
 
 
+__getattr__ = getattr_migration(__name__)
 __all__ = ['Sample', 'sense', 'episode', 'features']
