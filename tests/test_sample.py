@@ -19,7 +19,6 @@ import h5py
 import os
 import tempfile
 
-from mbodied.data.recording import Recorder
 from mbodied.types.sample import Sample
 
 

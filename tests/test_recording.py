@@ -18,7 +18,6 @@ import numpy as np
 import os
 from gymnasium import spaces
 from gymnasium import spaces
-from mbodied.data.recording import Recorder, create_dataset_for_space_dict
 from mbodied.types.sample import Sample
 from tempfile import TemporaryDirectory
 from mbodied.types.sense.vision import Image

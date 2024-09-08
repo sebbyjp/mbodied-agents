@@ -29,7 +29,6 @@ from mbodied.types.motion.control import (
     HeadControl,
     MobileSingleArmControl,
 )
-from mbodied.data.recording import Recorder
 
 
 @pytest.fixture(autouse=True)
