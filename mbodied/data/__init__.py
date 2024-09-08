@@ -39,7 +39,7 @@ def getattr_migration(module_name: str) -> Callable[[str], Any]:
             raise AttributeError(f"module {module_name!r} has no attribute {name!r}")
         try:
             if name not in sys.modules:
-                import_path = f"{}:{name}"
+                import_path = f"embdata:{name}"
                 imported_module = smart_import(import_path)
         except ModuleNotFoundError as e:
             raise AttributeError(f"module {module_name!r} has no attribute {name!r}") from e
