@@ -4,11 +4,12 @@ import warnings
 import embdata
 from typing import Any, Callable
 
-from embdata import episode, features, sense
+from embdata import episode, sense
 from embdata.sample import Sample
 from embdata.utils.import_utils import smart_import
 
-# Import and re-export the to_features function
+# Import and re-export the features module and to_features function
+import embdata.features as features
 from embdata.features import to_features_dict
 
 # Re-export the modules and functions
@@ -19,6 +20,8 @@ def getattr_migration(module_name: str) -> Callable[[str], Any]:
     def wrapper(name: str) -> Any:
         if name == "__path__":
             raise AttributeError(f"module {module_name!r} has no attribute {name!r}")
+        if name in globals():
+            return globals()[name]
         try:
             import_path = f"embdata.{name}"
             imported_module = smart_import(import_path)
