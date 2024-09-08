@@ -5,7 +5,7 @@ from typing import TYPE_CHECKING
 
 import numpy as np
 
-from mbodied.data.utils.import_utils import smart_import
+from mbodied.utils.import_utils import smart_import
 
 if TYPE_CHECKING:
     import pyrealsense2.pyrealsense2 as rs
