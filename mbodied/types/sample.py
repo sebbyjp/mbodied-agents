@@ -148,14 +148,14 @@ class Sample(BaseModel):
                     value, index = unflatten_recursive(prop_schema, index)
                     result[prop] = value
                 return result, index
-            elif schema_part["type"] == "array":
+            if schema_part["type"] == "array":
                 items = []
                 for _ in range(schema_part.get("maxItems", len(flat_data) - index)):
                     value, index = unflatten_recursive(schema_part["items"], index)
                     items.append(value)
                 return items, index
-            else:  # Assuming it's a primitive type
-                return flat_data[index], index + 1
+            # Assuming it's a primitive type
+            return flat_data[index], index + 1
 
         unflattened_dict, _ = unflatten_recursive(schema)
         return cls(**unflattened_dict)
