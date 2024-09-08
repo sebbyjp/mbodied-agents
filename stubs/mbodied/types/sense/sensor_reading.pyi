@@ -1,0 +1,3 @@
+from mbodied.types.sample import Sample as Sample
+
+class SensorReading(Sample): ...
