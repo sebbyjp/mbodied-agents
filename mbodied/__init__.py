@@ -1,3 +1,3 @@
-from . import data
+from . import data, robots, types
 
-__all__ = ['data']
+__all__ = ['data', 'types', 'robots']
