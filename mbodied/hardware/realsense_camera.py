@@ -4,7 +4,6 @@ import logging
 from typing import TYPE_CHECKING
 
 import numpy as np
-
 from embdata.utils.import_utils import smart_import
 
 if TYPE_CHECKING:
@@ -45,6 +44,7 @@ class RealsenseCamera:
         self.depth_sensor = self.profile.get_device().first_depth_sensor()
         self.depth_scale = self.depth_sensor.get_depth_scale()
         self.align = rs.align(rs.stream.color)
+        self.rs = rs
 
     def capture_realsense_images(self) -> tuple[np.ndarray, np.ndarray, "rs.intrinsics", np.ndarray]:
         """Capture color and depth images from the RealSense camera along with intrinsics.
@@ -53,6 +53,7 @@ class RealsenseCamera:
             tuple: color_image (np.ndarray), depth_image (np.ndarray),
                    intrinsics (rs.intrinsics), intrinsics_matrix (np.ndarray)
         """
+        rs = self.rs
         while True:
             frames = self.pipeline.wait_for_frames()
             aligned_frames = self.align.process(frames)
