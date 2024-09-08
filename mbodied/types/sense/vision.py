@@ -392,8 +392,9 @@ class Image(Sample):
             image = PILModule.fromarray(array).convert("RGB")
             validated_values.update(cls.pil_to_data(image, validated_values["encoding"], validated_values["size"]))
         if any(validated_values[k] is None for k in ["array", "base64", "pil", "url"]):
+            fetched_fields = [k for k in validated_values if validated_values[k] is not None]
             logging.warning(
-                f"Failed to validate image data. Could only fetch {[k for k in validated_values if validated_values[k] is not None]}",
+                f"Failed to validate image data. Could only fetch {fetched_fields}",
             )
         return validated_values
 
