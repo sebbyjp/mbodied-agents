@@ -105,7 +105,7 @@ class RealsenseCamera:
         return intrinsics_dict
 
     @staticmethod
-    def intrinsics_to_base64(intrinsics: rs.intrinsics) -> str:
+    def intrinsics_to_base64(intrinsics: "rs.intrinsics") -> str:
         """Convert camera intrinsics to a base64 string.
 
         Args:
@@ -210,13 +210,13 @@ class RealsenseCamera:
         return intrinsics
 
     @staticmethod
-    def pixel_to_3dpoint_realsense(centroid: tuple, depth: float, realsense_intrinsics: object) -> np.ndarray:
+    def pixel_to_3dpoint_realsense(centroid: tuple, depth: float, realsense_intrinsics: "rs.intrinsics") -> np.ndarray:
         """Convert a 2D pixel coordinate to a 3D point using the depth and camera intrinsics.
 
         Args:
             centroid (tuple): The (u, v) coordinates of the pixel.
             depth (float): The depth value at the pixel.
-            realsense_intrinsics (object): Camera intrinsics.
+            realsense_intrinsics (rs.intrinsics): Camera intrinsics.
 
         Returns:
             np.ndarray: The 3D coordinates of the point.
@@ -226,6 +226,7 @@ class RealsenseCamera:
             >>> estimator.pixel_to_3dpoint_realsense((320, 240), 1.5, realsense_intrinsics)
         """
         u, v = centroid
+        rs = smart_import("pyrealsense2.pyrealsense2")
         points = rs.rs2_deproject_pixel_to_point(realsense_intrinsics, [u, v], depth)
         return np.array(points)
 
