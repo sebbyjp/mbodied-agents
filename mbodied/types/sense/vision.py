@@ -134,6 +134,7 @@ class Image(Sample):
           pil (Optional[PILImage], optional): The PIL image object.
           encoding (Optional[str], optional): The encoding format of the image. Defaults to 'jpeg'.
           size (Optional[Tuple[int, int]], optional): The size of the image as a (width, height) tuple.
+          bytes_obj (Optional[bytes], optional): The bytes object representing the image.
           **kwargs: Additional keyword arguments.
         """
         kwargs["encoding"] = encoding or "jpeg"
