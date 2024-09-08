@@ -34,6 +34,7 @@ dependencies = [
     'gymnasium',
     'h5py',
     'jsonref',
+    'mrender==0.0.14',
     'numpy==1.26.4',
     'openai',
     'opencv-python',
@@ -52,16 +53,9 @@ audio = [
   "openai-whisper",
 
 ]
-all = [
-  "playsound",
-  "pyaudio",
-  "openai-whisper",
-  "open3d",
-  "timm",
-  "torchvision",
-  "wandb",
-
-]
+all = ["eclipse-zenoh", "imutils", "mypy", "open3d", "openai-whisper", "playsound", "pyaudio", "timm", "torchvision", "wandb"]
+dev = ["mypy"]
+synaptic = ["eclipse-zenoh", "imutils"]
 [project.urls]
 Documentation = "https://github.com/mbodiai/embodied-agents#readme"
 Issues = "https://github.com/mbodiai/embodied-agents/issues"
