@@ -8,7 +8,7 @@ from embdata.sample import Sample
 from embdata.utils.import_utils import smart_import
 
 # Re-export the modules and functions
-
+__all__ = ['Sample', 'sense', 'episode', 'features', 'to_features_dict']
 
 # Import and re-export the to_features function
 from embdata.features import to_features_dict
@@ -31,5 +31,3 @@ def getattr_migration(module_name: str) -> Callable[[str], Any]:
     return wrapper
 
 __getattr__ = getattr_migration(__name__)
-
-__all__ = [getattr(__name__, name) for name in dir(sys.modules[__name__]) if not name.startswith("_")]
