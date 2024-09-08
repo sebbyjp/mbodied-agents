@@ -1,8 +1,11 @@
 import sys
 from typing import Any, Callable
+
 import embdata
-from embdata.utils.import_utils import smart_import
+from embdata import episode, features, sense
 from embdata.sample import Sample
+from embdata.utils.import_utils import smart_import
+
 
 def getattr_migration(module_name: str) -> Callable[[str], Any]:
     """Implement PEP 562 for objects that were either moved or removed on the migration to V2."""
@@ -26,7 +29,5 @@ def getattr_migration(module_name: str) -> Callable[[str], Any]:
 
     return wrapper
 
-# Import specific modules from embdata
-from embdata import sense, episode, features
 
 __all__ = ['Sample', 'sense', 'episode', 'features']

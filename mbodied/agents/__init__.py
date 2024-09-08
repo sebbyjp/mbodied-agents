@@ -14,11 +14,6 @@
 
 
 
-# Import mbodied.data.sample after it has been initialized
-import mbodied.data
-from mbodied import data
-from mbodied.data import sample
-
 from .agent import Agent
 from .language.language_agent import LanguageAgent
 from .motion.motor_agent import MotorAgent
