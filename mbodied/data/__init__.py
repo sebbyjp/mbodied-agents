@@ -4,7 +4,7 @@ import embdata
 from embdata.utils.import_utils import smart_import
 from embdata.sample import Sample
 
-def getattr_migration(module_name: str) -> Callable[[str, Any]]:
+def getattr_migration(module_name: str) -> Callable[[str], Any]:
     """Implement PEP 562 for objects that were either moved or removed on the migration to V2."""
     def wrapper(name: str) -> Any:
         """Raise an error if the object is not found, or warn if it was moved."""
