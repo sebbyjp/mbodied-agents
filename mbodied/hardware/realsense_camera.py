@@ -1,7 +1,7 @@
 import base64
 import json
 import logging
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 import numpy as np
 from embdata.utils.import_utils import smart_import
@@ -72,7 +72,7 @@ class RealsenseCamera:
             return color_image, depth_image, intrinsics
 
     @staticmethod
-    def serialize_intrinsics(intrinsics: rs.intrinsics) -> dict:
+    def serialize_intrinsics(intrinsics: "rs.intrinsics") -> dict:
         """Serialize camera intrinsics to a dictionary.
 
         Args:
@@ -119,7 +119,7 @@ class RealsenseCamera:
         return base64.b64encode(intrinsics_json.encode("utf-8")).decode("utf-8")
 
     @staticmethod
-    def base64_to_intrinsics(base64_str: str) -> rs.intrinsics:
+    def base64_to_intrinsics(base64_str: str) -> "rs.intrinsics":
         """Convert a base64 encoded string to an rs.intrinsics object.
 
         Args:
@@ -158,7 +158,7 @@ class RealsenseCamera:
         image_width: int,
         matrix: np.ndarray,
         coeffs: np.ndarray,
-    ) -> rs.intrinsics:
+    ) -> "rs.intrinsics":
         """Convert a 3x3 intrinsic matrix and a 1x5 distortion coefficients array to an rs.intrinsics object.
 
         Args:
