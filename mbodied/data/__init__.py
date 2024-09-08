@@ -3,11 +3,11 @@ import sys
 from typing import Any, Callable
 
 
-def getattr_migration(module: str) -> Callable[[str], Any]:
+def getattr_migration(module_name: str) -> Callable[[str], Any]:
     """Implement PEP 562 for objects that were either moved or removed on the migration to V2.
 
     Args:
-        module: The module name.
+        module_name: The module name.
 
     Returns:
         A callable that will raise an error if the object is not found.
@@ -29,16 +29,16 @@ def getattr_migration(module: str) -> Callable[[str], Any]:
 
         from embdata.utils.import_utils import smart_import
         if name == '__path__':
-            raise AttributeError(f'module {module!r} has no attribute {name!r}')
+            raise AttributeError(f'module {module_name!r} has no attribute {name!r}')
         try:
             if name not in sys.modules:
-                import_path = f'{module}:{name}'
-                module = smart_import(import_path)
+                import_path = f'{module_name}:{name}'
+                imported_module = smart_import(import_path)
         except ModuleNotFoundError as e:
-            raise AttributeError(f'module {module!r} has no attribute {name!r}') from e
+            raise AttributeError(f'module {module_name!r} has no attribute {name!r}') from e
         else:
-            warnings.warn(f'{module!r} was moved to embdata. Please update your imports.', DeprecationWarning)  # noqa: B028
-            return module
+            warnings.warn(f'{module_name!r} was moved to embdata. Please update your imports.', DeprecationWarning)  # noqa: B028
+            return imported_module
      
 
 
