@@ -1,6 +1,13 @@
-
 import sys
 from typing import Any, Callable
+import embdata
+from embdata.utils.import_utils import smart_import
+import embdata.sample
+import embdata.features
+import embdata.utils
+import embdata.describe
+import embdata.episode
+import embdata.sense
 
 
 def getattr_migration(module_name: str) -> Callable[[str], Any]:
@@ -27,28 +34,26 @@ def getattr_migration(module_name: str) -> Callable[[str], Any]:
         """
         import warnings
 
-        from embdata.utils.import_utils import smart_import
-        if name == '__path__':
-            raise AttributeError(f'module {module_name!r} has no attribute {name!r}')
+
+        if name == "__path__":
+            raise AttributeError(f"module {module_name!r} has no attribute {name!r}")
         try:
             if name not in sys.modules:
-                import_path = f'{module_name}:{name}'
+                import_path = f"{}:{name}"
                 imported_module = smart_import(import_path)
         except ModuleNotFoundError as e:
-            raise AttributeError(f'module {module_name!r} has no attribute {name!r}') from e
+            raise AttributeError(f"module {module_name!r} has no attribute {name!r}") from e
         else:
-            warnings.warn(f'{module_name!r} was moved to embdata. Please update your imports.', DeprecationWarning)  # noqa: B028
+            warnings.warn(f"{module_name!r} was moved to embdata. Please update your imports.", DeprecationWarning)  # noqa: B028
             return imported_module
-     
-
-
-        
 
     globals: dict[str, Any] = sys.modules[module].__dict__
     if module in globals:
         return globals[module]
 
     return wrapper
+
+
 from ..embdata import *
 
-__all__ = [name for name in dir() if not name.startswith('_')]
+__all__ = [name for name in dir() if not name.startswith("_")]
