@@ -8,9 +8,9 @@ from embdata import episode, sense
 from embdata.sample import Sample
 from embdata.utils.import_utils import smart_import
 
-# Import and re-export the features module and to_features function
-import embdata.features as features
-from embdata.features import to_features_dict
+# Import and re-export the features module and its contents
+from embdata import features
+from embdata.features import *
 
 # Re-export the modules and functions
 
@@ -37,4 +37,4 @@ __getattr__ = getattr_migration(__name__)
 
 # Expose to_features_dict as to_features for backward compatibility
 
-__all__ = [module for module in dir(embdata) if not module.startswith('_')]
+__all__ = [module for module in dir(embdata) if not module.startswith('_')] + ['features']
