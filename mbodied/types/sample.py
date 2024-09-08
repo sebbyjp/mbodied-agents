@@ -533,9 +533,9 @@ class Sample(BaseModel):
         return None
 
     def space(self) -> spaces.Dict:
-        """Return the corresponding Gym space for the Sample instance based on its instance attributes. Omits None values.
-
-        Override this method in subclasses to customize the space generation.
+        """Return the corresponding Gym space for the Sample instance based on its instance attributes.
+        
+        Omits None values. Override this method in subclasses to customize the space generation.
         """
         space_dict = {}
         for key, value in self.dict().items():
