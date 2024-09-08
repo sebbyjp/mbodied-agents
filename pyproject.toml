@@ -21,29 +21,21 @@ classifiers = [
 ]
 
 dependencies = [
-    'anthropic',
-    'anthropic',
-    'art',
-    'backoff',
-    'click',
-    'coverage[toml]',
-    'datasets',
-    'embdata==0.0.12',
-    'gradio',
-    'gradio_client',
-    'gymnasium',
-    'h5py',
-    'jsonref',
-    'numpy==1.26.4',
-    'openai',
-    'opencv-python',
-    'pillow',
-    'pydantic',
-    'pydantic_numpy==5.0.2',
-    'toml',
-    'torch',
-    'transformers',
-    'xarm-python-sdk',
+  "anthropic",
+  "art",
+  "backoff",
+  "click",
+  "datasets",
+  "gymnasium",
+  "h5py",
+  "jsonref",
+  "numpy==1.26.4",
+  "openai",
+  "pillow",
+  "pydantic",
+  "pydantic_numpy==5.0.2",
+  "gradio",
+  "gradio_client",
 ]
 [project.optional-dependencies]
 extras = ["xarm-python-sdk", "opencv-python", "torch", "transformers"]
@@ -60,6 +52,7 @@ all = [
   "timm",
   "torchvision",
   "wandb",
+
 ]
 [project.urls]
 Documentation = "https://github.com/mbodiai/embodied-agents#readme"
