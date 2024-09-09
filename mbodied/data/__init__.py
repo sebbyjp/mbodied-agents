@@ -8,6 +8,7 @@ from embdata import episode, sense
 from embdata.sample import Sample
 from embdata.utils.import_utils import smart_import
 
+
 def getattr_migration(module_name: str) -> Callable[[str], Any]:
     """Implement PEP 562 for objects that were either moved or removed on the migration to V2."""
     def wrapper(name: str) -> Any:
