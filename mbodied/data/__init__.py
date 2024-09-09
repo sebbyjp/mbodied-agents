@@ -20,6 +20,9 @@ def getattr_migration(module_name: str) -> Callable[[str], Any]:
             import_path = f"embdata.{name}"
             imported_module = smart_import(import_path)
         except ModuleNotFoundError as e:
+            if name == "__module__":
+                # Handle the special case for __module__
+                return module_name
             raise AttributeError(f"module {module_name!r} has no attribute {name!r}") from e
         else:
             warnings.warn(f"{module_name!r} was moved to embdata. Please update your imports.", DeprecationWarning, stacklevel=2)
