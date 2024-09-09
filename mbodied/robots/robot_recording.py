@@ -1,19 +1,18 @@
 import threading
 import time
 from queue import Queue
-from typing import Any, Callable, Literal
+from typing import Callable, Literal, Self
+
 from mbodied.data.recording import Recorder
-class RobotRecorder:
-    """A class for recording robot observation and actions.
 
-    Recording at a specified frequency on the observation and action of a robot. It leverages a queue and a worker
-    thread to handle the recording asynchronously, ensuring that the main operations of the
-    robot are not blocked.
 
-    Robot class must pass in the `get_state`, `get_observation`, `prepare_action` methods.`
-    get_state() gets the current state/pose of the robot.
-    get_observation() captures the observation/image of the robot.
-    prepare_action() calculates the action between the new and old states.
+class Recorder:
+    """A class for non-blocking recording robot observation at a specified frequency.
+
+    Robot class must pass in the `get_state`, `get_observation`, `prepare_action` methods.
+    - `get_state()` gets the current state/pose of the robot.
+    - `get_observation()` captures the observation/image of the robot.
+    - `prepare_action()` calculates the action between the new and old states.
     """
 
     def __init__(
@@ -41,7 +40,7 @@ class RobotRecorder:
         """
         if recorder_kwargs is None:
             recorder_kwargs = {}
-        self.recorder = Recorder(**recorder_kwargs)
+        self._recorder = Recorder(**recorder_kwargs)
         self.task = None
 
         self.last_recorded_state = None
@@ -67,28 +66,28 @@ class RobotRecorder:
         """Exit the context manager, stopping the recording."""
         self.stop_recording()
 
-    def record(self, task: str) -> "RobotRecorder":
+    def record(self, task: str) -> Self:
         """Set the task and return the context manager."""
         self.task = task
         return self
 
-    def reset_recorder(self) -> None:
+    def reset(self) -> None:
         """Reset the recorder."""
         while self.recording:
             time.sleep(0.1)
-        self.recorder.reset()
+        self._recorder.reset()
 
     def record_from_robot(self) -> None:
         """Records the current pose and captures an image at the specified frequency."""
         while self.recording:
             start_time = time.perf_counter()
-            self.record_current_state()
+            self.record_state()
             elapsed_time = time.perf_counter() - start_time
             # Sleep for the remaining time to maintain the desired frequency
             sleep_time = max(0, (1.0 / self.frequency_hz) - elapsed_time)
             time.sleep(sleep_time)
 
-    def start_recording(self, task: str = "") -> None:
+    def on_action_start(self, task: str = "") -> None:
         """Starts the recording of pose and image."""
         if not self.recording:
             self.task = task
@@ -109,7 +108,7 @@ class RobotRecorder:
             self.recorder.record(observation={"image": image, "instruction": instruction}, action=action, state=state)
             self.recording_queue.task_done()
 
-    def record_current_state(self) -> None:
+    def record_state(self) -> None:
         """Records the current pose and image if the pose has changed."""
         state = self.get_state()
         image = self.get_observation()
@@ -133,6 +132,6 @@ class RobotRecorder:
             self.last_image = image
             self.last_recorded_state = state
 
-    def record_last_state(self) -> None:
+    def finalize(self) -> None:
         """Records the final pose and image after the movement completes."""
-        self.record_current_state()
+        self.record_state()

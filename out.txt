@@ -1,0 +1,437 @@
+error: not checking stubs due to mypy build errors:
+mbodied/types/language/control.py:42: error: "Enum" has no attribute "__iter__"; maybe "__dir__"? (not iterable)  [attr-defined]
+mbodied/types/language/control.py:48: error: Value of type "Enum" is not indexable  [index]
+mbodied/types/language/control.py:50: error: Incompatible return value type (got "None", expected "Enum")  [return-value]
+mbodied/utils/import_utils.py:21: error: No return value expected  [return-value]
+mbodied/utils/import_utils.py:22: error: No return value expected  [return-value]
+mbodied/utils/import_utils.py:52: error: Argument 1 to "LazyLoader" has incompatible type "Loader | None"; expected "Loader"  [arg-type]
+mbodied/agents/backends/gradio_backend.py:15: error: Skipping analyzing "gradio_client": module is installed, but missing library stubs or py.typed marker  [import-untyped]
+mbodied/agents/backends/gradio_backend.py:16: error: Skipping analyzing "gradio_client.client": module is installed, but missing library stubs or py.typed marker  [import-untyped]
+mbodied/agents/backends/gradio_backend.py:16: note: See https://mypy.readthedocs.io/en/stable/running_mypy.html#missing-imports
+mbodied/agents/backends/gradio_backend.py:26: error: Incompatible default for argument "endpoint" (default has type "None", argument has type "str")  [assignment]
+mbodied/agents/backends/gradio_backend.py:26: note: PEP 484 prohibits implicit Optional. Accordingly, mypy has changed its default to no_implicit_optional=True
+mbodied/agents/backends/gradio_backend.py:26: note: Use https://github.com/hauntsaninja/no_implicit_optional to automatically upgrade your codebase
+mbodied/data/__init__.py:7: error: Skipping analyzing "embdata": module is installed, but missing library stubs or py.typed marker  [import-untyped]
+mbodied/data/__init__.py:8: error: Skipping analyzing "embdata.sample": module is installed, but missing library stubs or py.typed marker  [import-untyped]
+mbodied/data/__init__.py:9: error: Skipping analyzing "embdata.utils.import_utils": module is installed, but missing library stubs or py.typed marker  [import-untyped]
+mbodied/data/__init__.py:35: error: Skipping analyzing "embdata.features": module is installed, but missing library stubs or py.typed marker  [import-untyped]
+mbodied/hardware/realsense_camera.py:6: error: Skipping analyzing "embdata.utils.import_utils": module is installed, but missing library stubs or py.typed marker  [import-untyped]
+mbodied/hardware/realsense_camera.py:9: error: Skipping analyzing "pyrealsense2.pyrealsense2": module is installed, but missing library stubs or py.typed marker  [import-untyped]
+mbodied/hardware/realsense_camera.py:9: error: Skipping analyzing "pyrealsense2": module is installed, but missing library stubs or py.typed marker  [import-untyped]
+mbodied/hardware/realsense_camera.py:71: error: Incompatible return value type (got "tuple[Any, Any, Any]", expected "tuple[ndarray[Any, Any], ndarray[Any, Any], Any, ndarray[Any, Any]]")  [return-value]
+mbodied/data/utils.py:17: error: Skipping analyzing "datasets": module is installed, but missing library stubs or py.typed marker  [import-untyped]
+mbodied/types/sample.py:23: error: Skipping analyzing "datasets": module is installed, but missing library stubs or py.typed marker  [import-untyped]
+mbodied/types/sample.py:25: error: Skipping analyzing "jsonref": module is installed, but missing library stubs or py.typed marker  [import-untyped]
+mbodied/types/sample.py:75: error: Cannot override class variable (previously declared on base class "BaseModel") with instance variable  [misc]
+mbodied/types/sample.py:102: error: Signature of "dict" incompatible with supertype "BaseModel"  [override]
+mbodied/types/sample.py:102: note:      Superclass:
+mbodied/types/sample.py:102: note:          def dict(self, *, include: set[int] | set[str] | dict[int, Any] | dict[str, Any] | None = ..., exclude: set[int] | set[str] | dict[int, Any] | dict[str, Any] | None = ..., by_alias: bool = ..., exclude_unset: bool = ..., exclude_defaults: bool = ..., exclude_none: bool = ...) -> dict[str, Any]
+mbodied/types/sample.py:102: note:      Subclass:
+mbodied/types/sample.py:102: note:          def dict(self, exclude_none: Any = ..., exclude: set[str] = ...) -> dict[str, Any]
+mbodied/types/sample.py:102: error: Incompatible default for argument "exclude" (default has type "None", argument has type "set[str]")  [assignment]
+mbodied/types/sample.py:102: note: PEP 484 prohibits implicit Optional. Accordingly, mypy has changed its default to no_implicit_optional=True
+mbodied/types/sample.py:102: note: Use https://github.com/hauntsaninja/no_implicit_optional to automatically upgrade your codebase
+mbodied/types/sample.py:167: error: Name "torch" is not defined  [name-defined]
+mbodied/types/sample.py:168: error: Need type annotation for "accumulator"  [var-annotated]
+mbodied/types/sample.py:197: error: "Collection[Any]" has no attribute "values"  [attr-defined]
+mbodied/types/sample.py:233: error: Signature of "schema" incompatible with supertype "BaseModel"  [override]
+mbodied/types/sample.py:233: note:      Superclass:
+mbodied/types/sample.py:233: note:          @classmethod
+mbodied/types/sample.py:233: note:          def schema(cls, by_alias: bool = ..., ref_template: str = ...) -> dict[str, Any]
+mbodied/types/sample.py:233: note:      Subclass:
+mbodied/types/sample.py:233: note:          def schema(self, resolve_refs: bool = ..., include_descriptions: Any = ...) -> dict[Any, Any]
+mbodied/types/sample.py:307: error: Argument 1 to "issubclass" has incompatible type "Sample"; expected "type"  [arg-type]
+mbodied/types/sample.py:308: error: "Sample" not callable  [operator]
+mbodied/types/sample.py:329: error: Name "to_features" is not defined  [name-defined]
+mbodied/types/sample.py:346: error: Annotated[...] must have exactly one type argument and at least one annotation  [valid-type]
+mbodied/types/sample.py:388: error: Argument "dtype" to "Box" has incompatible type "Any | dtype[floating[_64Bit]]"; expected "type[floating[Any]] | type[integer[Any]]"  [arg-type]
+mbodied/types/sample.py:393: error: Argument 1 to "Dict" has incompatible type "Space[Any]"; expected "dict[str, Space[Any]] | Sequence[tuple[str, Space[Any]]] | None"  [arg-type]
+mbodied/types/sample.py:404: error: Argument 2 to "isinstance" has incompatible type "<typing special form>"; expected "_ClassInfo"  [arg-type]
+mbodied/types/sample.py:422: error: Incompatible default for argument "schema" (default has type "None", argument has type "dict[Any, Any]")  [assignment]
+mbodied/types/sample.py:422: note: PEP 484 prohibits implicit Optional. Accordingly, mypy has changed its default to no_implicit_optional=True
+mbodied/types/sample.py:422: note: Use https://github.com/hauntsaninja/no_implicit_optional to automatically upgrade your codebase
+mbodied/types/sample.py:435: error: Need type annotation for "reconstructed" (hint: "reconstructed: dict[<type>, <type>] = ...")  [var-annotated]
+mbodied/types/sample.py:446: error: Incompatible return value type (got "dict[Any, Any]", expected "Sample")  [return-value]
+mbodied/types/sample.py:481: error: Need type annotation for "aggregated"  [var-annotated]
+mbodied/types/sample.py:493: error: Item "None" of "dict[str, Any] | None" has no attribute "keys"  [union-attr]
+mbodied/types/sample.py:527: error: Unexpected keyword argument "metadata" for "FieldInfo"  [call-arg]
+.mbodied/envs/mbodied/lib/python3.11/site-packages/pydantic/fields.py:198: note: "FieldInfo" defined here
+mbodied/types/sample.py:529: error: Unexpected keyword argument "metadata" for "FieldInfo"  [call-arg]
+.mbodied/envs/mbodied/lib/python3.11/site-packages/pydantic/fields.py:198: note: "FieldInfo" defined here
+mbodied/types/sample.py:532: error: Incompatible return value type (got "type[Any] | None", expected "FieldInfo")  [return-value]
+mbodied/types/sample.py:533: error: Incompatible return value type (got "None", expected "FieldInfo")  [return-value]
+mbodied/types/motion/motion.py:85: error: Dict entry 0 has incompatible type "str": "list[float] | None"; expected "str": "int | float | str | list[JsonValue] | JsonDict | None"  [dict-item]
+mbodied/types/motion/motion.py:85: error: Dict entry 2 has incompatible type "str": "tuple[int] | None"; expected "str": "int | float | str | list[JsonValue] | JsonDict | None"  [dict-item]
+mbodied/types/motion/motion.py:223: error: Cannot override class variable (previously declared on base class "BaseModel") with instance variable  [misc]
+mbodied/agents/config.py:3: error: Skipping analyzing "gradio.components": module is installed, but missing library stubs or py.typed marker  [import-untyped]
+mbodied/agents/config.py:68: error: Right hand side values are not supported in TypedDict  [misc]
+mbodied/agents/config.py:69: error: Right hand side values are not supported in TypedDict  [misc]
+mbodied/agents/config.py:79: error: Incompatible types in assignment (expression has type "str | SecretStr", variable has type "SecretStr")  [assignment]
+mbodied/agents/config.py:79: error: Argument 2 to "getenv" has incompatible type "str"; expected "SecretStr"  [arg-type]
+mbodied/agents/config.py:84: error: Right hand side values are not supported in TypedDict  [misc]
+mbodied/agents/config.py:85: error: Right hand side values are not supported in TypedDict  [misc]
+mbodied/agents/config.py:86: error: Right hand side values are not supported in TypedDict  [misc]
+mbodied/agents/config.py:88: error: Right hand side values are not supported in TypedDict  [misc]
+mbodied/agents/config.py:93: error: Right hand side values are not supported in TypedDict  [misc]
+mbodied/agents/config.py:98: error: Incompatible types in assignment (expression has type "str", base class "BaseAgentConfig" defined the type as "SecretStr")  [assignment]
+mbodied/agents/config.py:100: error: Argument "default_factory" to "Field" has incompatible type "type[CompletionConfig]"; expected "Callable[[], Any] | None"  [arg-type]
+mbodied/agents/config.py:101: error: Argument "default_factory" to "Field" has incompatible type "type[CompletionConfig]"; expected "Callable[[], Any] | None"  [arg-type]
+mbodied/agents/config.py:123: error: Item "None" of "State | None" has no attribute "get"  [union-attr]
+mbodied/agents/config.py:124: error: "State" has no attribute "clear"  [attr-defined]
+mbodied/agents/config.py:127: error: Incompatible return value type (got "object", expected "str")  [return-value]
+mbodied/agents/config.py:127: error: Unsupported operand types for in ("object" and "str")  [operator]
+mbodied/agents/config.py:132: error: Item "None" of "State | None" has no attribute "get"  [union-attr]
+mbodied/agents/config.py:133: error: "State" has no attribute "clear"  [attr-defined]
+mbodied/agents/config.py:135: error: Item "None" of "State | None" has no attribute "get"  [union-attr]
+mbodied/agents/config.py:140: error: Item "None" of "State | None" has no attribute "get"  [union-attr]
+mbodied/agents/config.py:141: error: "State" has no attribute "clear"  [attr-defined]
+mbodied/agents/config.py:143: error: Unsupported target for indexed assignment ("State | None")  [index]
+mbodied/agents/config.py:143: error: TypedDict "State" has no key "speaker_status"  [typeddict-unknown-key]
+mbodied/agents/config.py:148: error: Item "None" of "State | None" has no attribute "get"  [union-attr]
+mbodied/agents/config.py:149: error: "State" has no attribute "clear"  [attr-defined]
+mbodied/agents/config.py:151: error: Unsupported target for indexed assignment ("State | None")  [index]
+mbodied/agents/config.py:151: error: TypedDict "State" has no key "speaker_status"  [typeddict-unknown-key]
+mbodied/agents/config.py:152: error: Unsupported target for indexed assignment ("State | None")  [index]
+mbodied/agents/config.py:152: error: TypedDict "State" has no key "actor_status"  [typeddict-unknown-key]
+mbodied/agents/config.py:153: error: Unsupported target for indexed assignment ("State | None")  [index]
+mbodied/agents/config.py:153: error: TypedDict "State" has no key "instruct_status"  [typeddict-unknown-key]
+mbodied/agents/config.py:154: error: TypedDict "State" has no key ""  [typeddict-item]
+mbodied/agents/config.py:155: error: Incompatible return value type (got "tuple[str]", expected "str")  [return-value]
+mbodied/agents/config.py:160: error: Item "None" of "State | None" has no attribute "get"  [union-attr]
+mbodied/agents/config.py:161: error: "State" has no attribute "clear"  [attr-defined]
+mbodied/agents/config.py:163: error: Item "None" of "State | None" has no attribute "get"  [union-attr]
+mbodied/agents/config.py:169: error: Item "None" of "State | None" has no attribute "get"  [union-attr]
+mbodied/agents/config.py:170: error: "State" has no attribute "clear"  [attr-defined]
+mbodied/agents/config.py:173: error: Unsupported target for indexed assignment ("State | None")  [index]
+mbodied/agents/config.py:173: error: TypedDict "State" has no key "actor_status"  [typeddict-unknown-key]
+mbodied/agents/config.py:174: error: Incompatible return value type (got "object", expected "str")  [return-value]
+mbodied/agents/config.py:176: error: Unsupported target for indexed assignment ("State | None")  [index]
+mbodied/agents/config.py:176: error: TypedDict "State" has no key "moving"  [typeddict-unknown-key]
+mbodied/agents/config.py:177: error: Item "State" of "State | None" has no attribute "instruct_status"  [union-attr]
+mbodied/agents/config.py:177: error: Item "None" of "State | None" has no attribute "instruct_status"  [union-attr]
+mbodied/agents/config.py:178: error: Item "State" of "State | None" has no attribute "actor_status"  [union-attr]
+mbodied/agents/config.py:178: error: Item "None" of "State | None" has no attribute "actor_status"  [union-attr]
+mbodied/agents/config.py:182: error: Right hand side values are not supported in TypedDict  [misc]
+mbodied/agents/config.py:183: error: Right hand side values are not supported in TypedDict  [misc]
+mbodied/agents/config.py:184: error: Overwriting TypedDict field "prompt" while extending  [misc]
+mbodied/agents/config.py:184: error: Right hand side values are not supported in TypedDict  [misc]
+mbodied/agents/config.py:185: error: Overwriting TypedDict field "reminder" while extending  [misc]
+mbodied/agents/config.py:185: error: Right hand side values are not supported in TypedDict  [misc]
+mbodied/agents/config.py:188: error: Overwriting TypedDict field "prompt" while extending  [misc]
+mbodied/agents/config.py:188: error: Right hand side values are not supported in TypedDict  [misc]
+mbodied/agents/config.py:189: error: Overwriting TypedDict field "reminder" while extending  [misc]
+mbodied/agents/config.py:189: error: Right hand side values are not supported in TypedDict  [misc]
+mbodied/agents/config.py:190: error: Overwriting TypedDict field "guidance" while extending  [misc]
+mbodied/agents/config.py:190: error: Right hand side values are not supported in TypedDict  [misc]
+mbodied/agents/config.py:191: error: Overwriting TypedDict field "post_process" while extending  [misc]
+mbodied/agents/config.py:191: error: Right hand side values are not supported in TypedDict  [misc]
+mbodied/types/ndarray.py:15: error: Skipping analyzing "pydantic_numpy.typing": module is installed, but missing library stubs or py.typed marker  [import-untyped]
+mbodied/types/ndarray.py:15: error: Skipping analyzing "pydantic_numpy": module is installed, but missing library stubs or py.typed marker  [import-untyped]
+mbodied/agents/sense/video_agent.py:8: error: Skipping analyzing "imutils": module is installed, but missing library stubs or py.typed marker  [import-untyped]
+mbodied/agents/sense/video_agent.py:9: error: Skipping analyzing "zenoh": module is installed, but missing library stubs or py.typed marker  [import-untyped]
+mbodied/agents/sense/video_agent.py:10: error: Skipping analyzing "imutils.video": module is installed, but missing library stubs or py.typed marker  [import-untyped]
+mbodied/types/sense/vision.py:41: error: Library stubs not installed for "pyaudio"  [import-untyped]
+mbodied/types/sense/vision.py:46: error: Library stubs not installed for "playsound"  [import-untyped]
+mbodied/types/sense/vision.py:51: error: Skipping analyzing "datasets.features": module is installed, but missing library stubs or py.typed marker  [import-untyped]
+mbodied/types/sense/vision.py:102: error: Cannot override class variable (previously declared on base class "BaseModel") with instance variable  [misc]
+mbodied/types/sense/vision.py:102: error: Extra key "extras" for TypedDict "ConfigDict"  [typeddict-unknown-key]
+mbodied/types/sense/vision.py:122: error: Argument 1 to "Path" has incompatible type "ndarray[Any, Any] | Image | str | Url"; expected "str | PathLike[str]"  [arg-type]
+mbodied/types/sense/vision.py:122: error: Item "ndarray[Any, Any]" of "ndarray[Any, Any] | Image | str | Url" has no attribute "startswith"  [union-attr]
+mbodied/types/sense/vision.py:122: error: Item "Image" of "ndarray[Any, Any] | Image | str | Url" has no attribute "startswith"  [union-attr]
+mbodied/types/sense/vision.py:122: error: Item "Url" of "ndarray[Any, Any] | Image | str | Url" has no attribute "startswith"  [union-attr]
+mbodied/types/sense/vision.py:126: error: Incompatible default for argument "arg" (default has type "None", argument has type "ndarray[Any, Any] | Image | str | Url | Path")  [assignment]
+mbodied/types/sense/vision.py:126: note: PEP 484 prohibits implicit Optional. Accordingly, mypy has changed its default to no_implicit_optional=True
+mbodied/types/sense/vision.py:126: note: Use https://github.com/hauntsaninja/no_implicit_optional to automatically upgrade your codebase
+mbodied/types/sense/vision.py:172: error: Argument 2 to "isinstance" has incompatible type "<typing special form>"; expected "_ClassInfo"  [arg-type]
+mbodied/types/sense/vision.py:172: error: Argument 1 to "len" has incompatible type "Url"; expected "Sized"  [arg-type]
+mbodied/types/sense/vision.py:293: error: Library stubs not installed for "requests"  [import-untyped]
+mbodied/types/sense/vision.py:293: note: Hint: "python3 -m pip install types-requests"
+mbodied/types/sense/vision.py:394: error: Incompatible types in assignment (expression has type "Image | None", variable has type "Image")  [assignment]
+mbodied/types/sense/vision.py:436: error: Item "None" of "Image | None" has no attribute "save"  [union-attr]
+mbodied/types/sense/vision.py:437: error: Incompatible types in assignment (expression has type "str", variable has type "Path | None")  [assignment]
+mbodied/types/sense/vision.py:450: error: Return type "Box" of "space" incompatible with return type "gymnasium.spaces.dict.Dict" in supertype "Sample"  [override]
+mbodied/types/sense/vision.py:459: error: Unsupported right operand type for in ("Url | str | None")  [operator]
+mbodied/hardware/sim_interface.py:38: error: Signature of "do" incompatible with supertype "HardwareInterface"  [override]
+mbodied/hardware/sim_interface.py:38: note:      Superclass:
+mbodied/hardware/sim_interface.py:38: note:          def do(self, *args: Any, **kwargs: Any) -> None
+mbodied/hardware/sim_interface.py:38: note:      Subclass:
+mbodied/hardware/sim_interface.py:38: note:          def do(self, motion: HandControl) -> list[float]
+mbodied/hardware/sim_interface.py:64: error: Signature of "capture" incompatible with supertype "HardwareInterface"  [override]
+mbodied/hardware/sim_interface.py:64: note:      Superclass:
+mbodied/hardware/sim_interface.py:64: note:          def capture(self, *args: Any, **kwargs: Any) -> None
+mbodied/hardware/sim_interface.py:64: note:      Subclass:
+mbodied/hardware/sim_interface.py:64: note:          def capture(self, **_: Any) -> Image
+mbodied/data/replaying.py:21: error: Skipping analyzing "h5py": module is installed, but missing library stubs or py.typed marker  [import-untyped]
+mbodied/data/replaying.py:23: error: Skipping analyzing "datasets": module is installed, but missing library stubs or py.typed marker  [import-untyped]
+mbodied/data/replaying.py:24: error: Skipping analyzing "embdata.features": module is installed, but missing library stubs or py.typed marker  [import-untyped]
+mbodied/data/replaying.py:47: error: Incompatible default for argument "file_keys" (default has type "None", argument has type "list[str]")  [assignment]
+mbodied/data/replaying.py:47: note: PEP 484 prohibits implicit Optional. Accordingly, mypy has changed its default to no_implicit_optional=True
+mbodied/data/replaying.py:47: note: Use https://github.com/hauntsaninja/no_implicit_optional to automatically upgrade your codebase
+mbodied/data/replaying.py:48: error: Incompatible default for argument "image_keys_to_save" (default has type "None", argument has type "list[str]")  [assignment]
+mbodied/data/replaying.py:48: note: PEP 484 prohibits implicit Optional. Accordingly, mypy has changed its default to no_implicit_optional=True
+mbodied/data/replaying.py:48: note: Use https://github.com/hauntsaninja/no_implicit_optional to automatically upgrade your codebase
+mbodied/data/replaying.py:216: error: Incompatible types in assignment (expression has type "ndarray[Any, dtype[signedinteger[Any]]]", variable has type "int | slice | None")  [assignment]
+mbodied/data/replaying.py:220: error: Incompatible return value type (got "list[tuple[dict[Any, Any], ...]]", expected "Sample")  [return-value]
+mbodied/data/replaying.py:221: error: Incompatible return value type (got "None", expected "Sample")  [return-value]
+mbodied/data/replaying.py:314: error: Incompatible default for argument "description" (default has type "None", argument has type "str")  [assignment]
+mbodied/data/replaying.py:314: note: PEP 484 prohibits implicit Optional. Accordingly, mypy has changed its default to no_implicit_optional=True
+mbodied/data/replaying.py:314: note: Use https://github.com/hauntsaninja/no_implicit_optional to automatically upgrade your codebase
+mbodied/data/replaying.py:425: error: Value of type "Replayer" is not indexable  [index]
+mbodied/data/recording.py:23: error: Skipping analyzing "h5py": module is installed, but missing library stubs or py.typed marker  [import-untyped]
+mbodied/data/recording.py:58: error: Argument 1 to "from_space" of "Sample" has incompatible type "ndarray[Any, Any]"; expected "Space[Any]"  [arg-type]
+mbodied/data/recording.py:60: error: Incompatible types in assignment (expression has type "str", variable has type "dict[str, Any]")  [assignment]
+mbodied/data/recording.py:150: error: Incompatible default for argument "image_keys_to_save" (default has type "None", argument has type "list[Any]")  [assignment]
+mbodied/data/recording.py:150: note: PEP 484 prohibits implicit Optional. Accordingly, mypy has changed its default to no_implicit_optional=True
+mbodied/data/recording.py:150: note: Use https://github.com/hauntsaninja/no_implicit_optional to automatically upgrade your codebase
+mbodied/data/recording.py:184: error: Argument "observation" to "configure_root_spaces" of "Recorder" has incompatible type "gymnasium.spaces.dict.Dict | str | None"; expected "gymnasium.spaces.dict.Dict"  [arg-type]
+mbodied/data/recording.py:185: error: Argument "action" to "configure_root_spaces" of "Recorder" has incompatible type "gymnasium.spaces.dict.Dict | str | None"; expected "gymnasium.spaces.dict.Dict"  [arg-type]
+mbodied/data/recording.py:186: error: Argument "state" to "configure_root_spaces" of "Recorder" has incompatible type "gymnasium.spaces.dict.Dict | str | None"; expected "gymnasium.spaces.dict.Dict"  [arg-type]
+mbodied/data/recording.py:187: error: Argument "supervision" to "configure_root_spaces" of "Recorder" has incompatible type "gymnasium.spaces.dict.Dict | str | None"; expected "gymnasium.spaces.dict.Dict"  [arg-type]
+mbodied/robots/robot_recording.py:28: error: Incompatible default for argument "recorder_kwargs" (default has type "None", argument has type "dict[Any, Any]")  [assignment]
+mbodied/robots/robot_recording.py:28: note: PEP 484 prohibits implicit Optional. Accordingly, mypy has changed its default to no_implicit_optional=True
+mbodied/robots/robot_recording.py:28: note: Use https://github.com/hauntsaninja/no_implicit_optional to automatically upgrade your codebase
+mbodied/robots/robot_recording.py:56: error: Need type annotation for "recording_queue"  [var-annotated]
+mbodied/robots/robot_recording.py:75: error: Incompatible types in assignment (expression has type "str", variable has type "None")  [assignment]
+mbodied/robots/robot_recording.py:97: error: Incompatible types in assignment (expression has type "str", variable has type "None")  [assignment]
+mbodied/agents/backends/serializer.py:36: error: Cannot override class variable (previously declared on base class "BaseModel") with instance variable  [misc]
+mbodied/agents/backends/serializer.py:143: error: Item "None" of "Any | None" has no attribute "__iter__" (not iterable)  [union-attr]
+mbodied/agents/backends/serializer.py:159: error: Unsupported operand types for + ("str" and "None")  [operator]
+mbodied/agents/backends/serializer.py:159: note: Right operand is of type "str | None"
+mbodied/robots/robot.py:130: error: Incompatible default for argument "recorder_kwargs" (default has type "None", argument has type "dict[Any, Any]")  [assignment]
+mbodied/robots/robot.py:130: note: PEP 484 prohibits implicit Optional. Accordingly, mypy has changed its default to no_implicit_optional=True
+mbodied/robots/robot.py:130: note: Use https://github.com/hauntsaninja/no_implicit_optional to automatically upgrade your codebase
+mbodied/robots/robot.py:140: error: Argument "on_static" to "RobotRecorder" has incompatible type "str"; expected "Literal['record', 'omit']"  [arg-type]
+mbodied/agents/backends/vision2seq_backend.py:29: error: Name "Vision2SeqBackend" already defined on line 25  [no-redef]
+mbodied/agents/backends/vision2seq_backend.py:49: error: Incompatible default for argument "attn_implementation" (default has type "str", argument has type "Literal['flash_attention_2', 'eager']")  [assignment]
+mbodied/agents/backends/vision2seq_backend.py:50: error: Name "torch.dtype" is not defined  [name-defined]
+mbodied/agents/backends/vision2seq_backend.py:51: error: Name "torch.device" is not defined  [name-defined]
+mbodied/agents/backends/vision2seq_backend.py:55: error: Skipping analyzing "transformers": module is installed, but missing library stubs or py.typed marker  [import-untyped]
+mbodied/robots/sim_robot.py:45: error: Signature of "do" incompatible with supertype "Robot"  [override]
+mbodied/robots/sim_robot.py:45: note:      Superclass:
+mbodied/robots/sim_robot.py:45: note:          def do(self, *args: Any, **kwargs: Any) -> None
+mbodied/robots/sim_robot.py:45: note:      Subclass:
+mbodied/robots/sim_robot.py:45: note:          def do(self, motion: HandControl | list[HandControl]) -> list[float]
+mbodied/robots/sim_robot.py:61: error: Unsupported operand types for / ("str" and "int")  [operator]
+mbodied/robots/sim_robot.py:61: note: Left operand is of type "str | Any"
+mbodied/robots/sim_robot.py:63: error: List comprehension has incompatible type List[float | Any]; expected List[int]  [misc]
+mbodied/robots/sim_robot.py:68: error: Incompatible return value type (got "list[int]", expected "list[float]")  [return-value]
+mbodied/robots/sim_robot.py:68: note: "List" is invariant -- see https://mypy.readthedocs.io/en/stable/common_issues.html#variance
+mbodied/robots/sim_robot.py:68: note: Consider using "Sequence" instead, which is covariant
+mbodied/robots/sim_robot.py:70: error: Signature of "capture" incompatible with supertype "Robot"  [override]
+mbodied/robots/sim_robot.py:70: note:      Superclass:
+mbodied/robots/sim_robot.py:70: note:          def capture(self, *args: Any, **kwargs: Any) -> None
+mbodied/robots/sim_robot.py:70: note:      Subclass:
+mbodied/robots/sim_robot.py:70: note:          def capture(self, **_: Any) -> Image
+mbodied/robots/sim_robot.py:85: error: Incompatible return value type (got "Sample", expected "HandControl")  [return-value]
+mbodied/robots/sim_robot.py:87: error: Argument 1 of "prepare_action" is incompatible with supertype "Robot"; supertype defines the argument type as "Sample"  [override]
+mbodied/robots/sim_robot.py:87: note: This violates the Liskov substitution principle
+mbodied/robots/sim_robot.py:87: note: See https://mypy.readthedocs.io/en/stable/common_issues.html#incompatible-overrides
+mbodied/robots/sim_robot.py:87: error: Argument 2 of "prepare_action" is incompatible with supertype "Robot"; supertype defines the argument type as "Sample"  [override]
+mbodied/robots/sim_robot.py:93: error: Incompatible return value type (got "Sample", expected "HandControl")  [return-value]
+mbodied/robots/xarm_robot.py:17: error: Skipping analyzing "xarm.wrapper": module is installed, but missing library stubs or py.typed marker  [import-untyped]
+mbodied/robots/xarm_robot.py:112: error: Incompatible return value type (got "Sample", expected "HandControl")  [return-value]
+mbodied/robots/xarm_robot.py:114: error: Argument 1 of "prepare_action" is incompatible with supertype "Robot"; supertype defines the argument type as "Sample"  [override]
+mbodied/robots/xarm_robot.py:114: note: This violates the Liskov substitution principle
+mbodied/robots/xarm_robot.py:114: note: See https://mypy.readthedocs.io/en/stable/common_issues.html#incompatible-overrides
+mbodied/robots/xarm_robot.py:114: error: Argument 2 of "prepare_action" is incompatible with supertype "Robot"; supertype defines the argument type as "Sample"  [override]
+mbodied/robots/xarm_robot.py:128: error: Incompatible return value type (got "Sample", expected "HandControl")  [return-value]
+mbodied/robots/xarm_robot.py:130: error: Signature of "capture" incompatible with supertype "Robot"  [override]
+mbodied/robots/xarm_robot.py:130: note:      Superclass:
+mbodied/robots/xarm_robot.py:130: note:          def capture(self, *args: Any, **kwargs: Any) -> None
+mbodied/robots/xarm_robot.py:130: note:      Subclass:
+mbodied/robots/xarm_robot.py:130: note:          def capture(self) -> Image
+mbodied/robots/xarm_robot.py:133: error: Too many values to unpack (3 expected, 4 provided)  [misc]
+mbodied/agents/backends/openai_backend.py:89: error: Incompatible default for argument "response_format" (default has type "None", argument has type "str")  [assignment]
+mbodied/agents/backends/openai_backend.py:89: note: PEP 484 prohibits implicit Optional. Accordingly, mypy has changed its default to no_implicit_optional=True
+mbodied/agents/backends/openai_backend.py:89: note: Use https://github.com/hauntsaninja/no_implicit_optional to automatically upgrade your codebase
+mbodied/agents/backends/openai_backend.py:137: error: Too many positional arguments  [misc]
+mbodied/agents/backends/openai_backend.py:137: error: Argument 1 has incompatible type "Message"; expected "ConfigDict"  [arg-type]
+mbodied/agents/backends/openai_backend.py:139: error: Item "None" of "Any | None" has no attribute "chat"  [union-attr]
+mbodied/agents/backends/openai_backend.py:148: error: Incompatible default for argument "context" (default has type "None", argument has type "list[Message]")  [assignment]
+mbodied/agents/backends/openai_backend.py:148: note: PEP 484 prohibits implicit Optional. Accordingly, mypy has changed its default to no_implicit_optional=True
+mbodied/agents/backends/openai_backend.py:148: note: Use https://github.com/hauntsaninja/no_implicit_optional to automatically upgrade your codebase
+mbodied/agents/backends/openai_backend.py:159: error: Too many positional arguments  [misc]
+mbodied/agents/backends/openai_backend.py:159: error: Argument 1 has incompatible type "Message"; expected "ConfigDict"  [arg-type]
+mbodied/agents/backends/openai_backend.py:160: error: Item "None" of "Any | None" has no attribute "chat"  [union-attr]
+mbodied/agents/backends/openai_backend.py:170: error: Incompatible default for argument "context" (default has type "None", argument has type "list[Message]")  [assignment]
+mbodied/agents/backends/openai_backend.py:170: note: PEP 484 prohibits implicit Optional. Accordingly, mypy has changed its default to no_implicit_optional=True
+mbodied/agents/backends/openai_backend.py:170: note: Use https://github.com/hauntsaninja/no_implicit_optional to automatically upgrade your codebase
+mbodied/agents/backends/openai_backend.py:183: error: Too many positional arguments  [misc]
+mbodied/agents/backends/openai_backend.py:183: error: Argument 1 has incompatible type "Message"; expected "ConfigDict"  [arg-type]
+mbodied/agents/backends/openai_backend.py:185: error: Argument "messages" to "create" of "AsyncCompletions" has incompatible type "list[dict[str, Any] | list[Any]]"; expected "Iterable[ChatCompletionSystemMessageParam | ChatCompletionUserMessageParam | ChatCompletionAssistantMessageParam | ChatCompletionToolMessageParam | ChatCompletionFunctionMessageParam]"  [arg-type]
+mbodied/agents/backends/openai_backend.py:191: error: Item "ChatCompletion" of "ChatCompletion | AsyncStream[ChatCompletionChunk]" has no attribute "__aiter__" (not async iterable)  [union-attr]
+mbodied/agents/backends/httpx_backend.py:14: error: Signature of "__call__" incompatible with supertype "Serializer"  [override]
+mbodied/agents/backends/httpx_backend.py:14: note:      Superclass:
+mbodied/agents/backends/httpx_backend.py:14: note:          def __call__(self) -> dict[str, Any] | list[Any]
+mbodied/agents/backends/httpx_backend.py:14: note:      Subclass:
+mbodied/agents/backends/httpx_backend.py:14: note:          def __call__(self, messages: list[Message]) -> list[dict[Any, Any]]
+mbodied/agents/backends/httpx_backend.py:23: error: Incompatible types in assignment (expression has type "dict[Any, Any]", variable has type "list[dict[Any, Any]]")  [assignment]
+mbodied/agents/backends/httpx_backend.py:74: error: Incompatible types in assignment (expression has type "Serializer | type[HttpxSerializer]", variable has type "type[OpenAISerializer]")  [assignment]
+mbodied/agents/backends/httpx_backend.py:77: error: Signature of "predict" incompatible with supertype "OpenAIBackendMixin"  [override]
+mbodied/agents/backends/httpx_backend.py:77: note:      Superclass:
+mbodied/agents/backends/httpx_backend.py:77: note:          def predict(self, message: Message, context: list[Message] | None = ..., model: Any | None = ..., **kwargs: Any) -> str
+mbodied/agents/backends/httpx_backend.py:77: note:      Subclass:
+mbodied/agents/backends/httpx_backend.py:77: note:          def predict(self, messages: list[Message], model: str | None = ..., **kwargs: Any) -> str
+mbodied/agents/backends/httpx_backend.py:80: error: Too many positional arguments  [misc]
+mbodied/agents/backends/httpx_backend.py:80: error: Argument 1 has incompatible type "Message"; expected "ConfigDict"  [arg-type]
+mbodied/agents/backends/httpx_backend.py:87: error: Argument "headers" to "post" of "Client" has incompatible type "dict[str, Any | str | None]"; expected "Headers | Mapping[str, str] | Mapping[bytes, bytes] | Sequence[tuple[str, str]] | Sequence[tuple[bytes, bytes]] | None"  [arg-type]
+mbodied/agents/backends/httpx_backend.py:90: error: "type[OpenAISerializer]" has no attribute "extract_response"  [attr-defined]
+mbodied/agents/backends/httpx_backend.py:94: error: Signature of "stream" incompatible with supertype "OpenAIBackendMixin"  [override]
+mbodied/agents/backends/httpx_backend.py:94: note:      Superclass:
+mbodied/agents/backends/httpx_backend.py:94: note:          def stream(self, message: Message, context: list[Message] = ..., model: str = ..., **kwargs: Any) -> Any
+mbodied/agents/backends/httpx_backend.py:94: note:      Subclass:
+mbodied/agents/backends/httpx_backend.py:94: note:          def stream(self, messages: list[Message], model: str | None = ..., **kwargs: Any) -> Generator[str, None, None]
+mbodied/agents/backends/httpx_backend.py:97: error: Signature of "astream" incompatible with supertype "OpenAIBackendMixin"  [override]
+mbodied/agents/backends/httpx_backend.py:97: note:      Superclass:
+mbodied/agents/backends/httpx_backend.py:97: note:          def astream(self, message: Message, context: list[Message] = ..., model: str = ..., **kwargs: Any) -> Any
+mbodied/agents/backends/httpx_backend.py:97: note:      Subclass:
+mbodied/agents/backends/httpx_backend.py:97: note:          def astream(self, messages: list[Message], model: str | None = ..., **kwargs: Any) -> AsyncGenerator[str, None]
+mbodied/agents/backends/httpx_backend.py:109: error: Too many positional arguments  [misc]
+mbodied/agents/backends/httpx_backend.py:109: error: Argument 1 has incompatible type "Message"; expected "ConfigDict"  [arg-type]
+mbodied/agents/backends/httpx_backend.py:118: error: Argument "headers" to "stream" of "Client" has incompatible type "dict[str, Any | str | None]"; expected "Headers | Mapping[str, str] | Mapping[bytes, bytes] | Sequence[tuple[str, str]] | Sequence[tuple[bytes, bytes]] | None"  [arg-type]
+mbodied/agents/backends/httpx_backend.py:122: error: "type[OpenAISerializer]" has no attribute "extract_stream"  [attr-defined]
+mbodied/agents/backends/httpx_backend.py:127: error: Too many positional arguments  [misc]
+mbodied/agents/backends/httpx_backend.py:127: error: Argument 1 has incompatible type "Message"; expected "ConfigDict"  [arg-type]
+mbodied/agents/backends/httpx_backend.py:136: error: Argument "headers" to "post" of "AsyncClient" has incompatible type "dict[str, Any | str | None]"; expected "Headers | Mapping[str, str] | Mapping[bytes, bytes] | Sequence[tuple[str, str]] | Sequence[tuple[bytes, bytes]] | None"  [arg-type]
+mbodied/agents/backends/httpx_backend.py:140: error: "type[OpenAISerializer]" has no attribute "extract_response"  [attr-defined]
+mbodied/agents/backends/httpx_backend.py:148: error: Too many positional arguments  [misc]
+mbodied/agents/backends/httpx_backend.py:148: error: Argument 1 has incompatible type "Message"; expected "ConfigDict"  [arg-type]
+mbodied/agents/backends/httpx_backend.py:155: error: Argument "headers" to "stream" of "AsyncClient" has incompatible type "dict[str, Any | str | None]"; expected "Headers | Mapping[str, str] | Mapping[bytes, bytes] | Sequence[tuple[str, str]] | Sequence[tuple[bytes, bytes]] | None"  [arg-type]
+mbodied/agents/backends/httpx_backend.py:158: error: "type[OpenAISerializer]" has no attribute "extract_stream"  [attr-defined]
+mbodied/agents/backends/httpx_backend.py:170: error: "str" has no attribute "__aiter__" (not async iterable)  [attr-defined]
+mbodied/agents/backends/anthropic_backend.py:89: error: Incompatible types in assignment (expression has type "type[AnthropicSerializer]", variable has type "type[OpenAISerializer]")  [assignment]
+mbodied/agents/backends/anthropic_backend.py:111: error: Too many positional arguments  [misc]
+mbodied/agents/backends/anthropic_backend.py:111: error: Argument 1 has incompatible type "Message | Any"; expected "ConfigDict"  [arg-type]
+mbodied/agents/backends/anthropic_backend.py:111: error: Unsupported left operand type for + ("None")  [operator]
+mbodied/agents/backends/anthropic_backend.py:111: note: Left operand is of type "list[Message] | None"
+mbodied/agents/backends/anthropic_backend.py:112: error: Item "None" of "Any | None" has no attribute "messages"  [union-attr]
+mbodied/agents/backends/ollama_backend.py:28: error: Return type "str" of "serialize_image" incompatible with return type "dict[str, Any]" in supertype "Serializer"  [override]
+mbodied/agents/backends/ollama_backend.py:30: error: Incompatible return value type (got "str | None", expected "str")  [return-value]
+mbodied/agents/backends/ollama_backend.py:33: error: Return type "str" of "serialize_text" incompatible with return type "dict[str, Any]" in supertype "Serializer"  [override]
+mbodied/agents/backends/ollama_backend.py:40: error: Item "None" of "Any | None" has no attribute "__iter__" (not iterable)  [union-attr]
+mbodied/agents/backends/ollama_backend.py:41: error: Item "None" of "Any | None" has no attribute "__iter__" (not iterable)  [union-attr]
+mbodied/agents/backends/ollama_backend.py:72: error: Incompatible types in assignment (expression has type "type[OllamaSerializer]", base class "HttpxBackend" defined the type as "type[HttpxSerializer]")  [assignment]
+mbodied/agents/backends/ollama_backend.py:75: error: Incompatible default for argument "endpoint" (default has type "None", argument has type "str")  [assignment]
+mbodied/agents/backends/ollama_backend.py:75: note: PEP 484 prohibits implicit Optional. Accordingly, mypy has changed its default to no_implicit_optional=True
+mbodied/agents/backends/ollama_backend.py:75: note: Use https://github.com/hauntsaninja/no_implicit_optional to automatically upgrade your codebase
+mbodied/agents/agent.py:68: error: Incompatible return value type (got "None", expected "type")  [return-value]
+mbodied/agents/agent.py:79: error: No return value expected  [return-value]
+mbodied/agents/agent.py:79: error: Cannot instantiate abstract class "GradioBackend" with abstract attribute "stream"  [abstract]
+mbodied/agents/agent.py:85: error: No return value expected  [return-value]
+mbodied/agents/agent.py:96: error: Incompatible default for argument "api_key" (default has type "None", argument has type "str")  [assignment]
+mbodied/agents/agent.py:96: note: PEP 484 prohibits implicit Optional. Accordingly, mypy has changed its default to no_implicit_optional=True
+mbodied/agents/agent.py:96: note: Use https://github.com/hauntsaninja/no_implicit_optional to automatically upgrade your codebase
+mbodied/agents/agent.py:128: error: Attribute "actor" already defined on line 124  [no-redef]
+mbodied/agents/language/language_agent.py:56: error: Skipping analyzing "art": module is installed, but missing library stubs or py.typed marker  [import-untyped]
+mbodied/agents/language/language_agent.py:126: error: Incompatible default for argument "context" (default has type "None", argument has type "list[Any] | Image | str | Message")  [assignment]
+mbodied/agents/language/language_agent.py:126: note: PEP 484 prohibits implicit Optional. Accordingly, mypy has changed its default to no_implicit_optional=True
+mbodied/agents/language/language_agent.py:126: note: Use https://github.com/hauntsaninja/no_implicit_optional to automatically upgrade your codebase
+mbodied/agents/language/language_agent.py:128: error: Incompatible default for argument "model_kwargs" (default has type "None", argument has type "dict[Any, Any]")  [assignment]
+mbodied/agents/language/language_agent.py:128: note: PEP 484 prohibits implicit Optional. Accordingly, mypy has changed its default to no_implicit_optional=True
+mbodied/agents/language/language_agent.py:128: note: Use https://github.com/hauntsaninja/no_implicit_optional to automatically upgrade your codebase
+mbodied/agents/language/language_agent.py:130: error: Incompatible default for argument "recorder_kwargs" (default has type "None", argument has type "dict[Any, Any]")  [assignment]
+mbodied/agents/language/language_agent.py:130: note: PEP 484 prohibits implicit Optional. Accordingly, mypy has changed its default to no_implicit_optional=True
+mbodied/agents/language/language_agent.py:130: note: Use https://github.com/hauntsaninja/no_implicit_optional to automatically upgrade your codebase
+mbodied/agents/language/language_agent.py:172: error: Argument "api_key" to "__init__" of "Agent" has incompatible type "str | None"; expected "str"  [arg-type]
+mbodied/agents/language/language_agent.py:177: error: Missing return statement  [return]
+mbodied/agents/language/language_agent.py:233: error: Incompatible default for argument "image" (default has type "None", argument has type "Image")  [assignment]
+mbodied/agents/language/language_agent.py:233: note: PEP 484 prohibits implicit Optional. Accordingly, mypy has changed its default to no_implicit_optional=True
+mbodied/agents/language/language_agent.py:233: note: Use https://github.com/hauntsaninja/no_implicit_optional to automatically upgrade your codebase
+mbodied/agents/language/language_agent.py:235: error: Incompatible default for argument "context" (default has type "None", argument has type "list[Any] | str | Image | Message")  [assignment]
+mbodied/agents/language/language_agent.py:235: note: PEP 484 prohibits implicit Optional. Accordingly, mypy has changed its default to no_implicit_optional=True
+mbodied/agents/language/language_agent.py:235: note: Use https://github.com/hauntsaninja/no_implicit_optional to automatically upgrade your codebase
+mbodied/agents/language/language_agent.py:275: error: Incompatible default for argument "image" (default has type "None", argument has type "Image")  [assignment]
+mbodied/agents/language/language_agent.py:275: note: PEP 484 prohibits implicit Optional. Accordingly, mypy has changed its default to no_implicit_optional=True
+mbodied/agents/language/language_agent.py:275: note: Use https://github.com/hauntsaninja/no_implicit_optional to automatically upgrade your codebase
+mbodied/agents/language/language_agent.py:276: error: Incompatible default for argument "parse_target" (default has type "type[Sample]", argument has type "Sample")  [assignment]
+mbodied/agents/language/language_agent.py:277: error: Incompatible default for argument "context" (default has type "None", argument has type "list[Any] | str | Image | Message")  [assignment]
+mbodied/agents/language/language_agent.py:277: note: PEP 484 prohibits implicit Optional. Accordingly, mypy has changed its default to no_implicit_optional=True
+mbodied/agents/language/language_agent.py:277: note: Use https://github.com/hauntsaninja/no_implicit_optional to automatically upgrade your codebase
+mbodied/agents/language/language_agent.py:287: error: Argument 4 to "to_thread" has incompatible type "Sample"; expected "type[Sample]"  [arg-type]
+mbodied/agents/language/language_agent.py:295: error: Incompatible default for argument "image" (default has type "None", argument has type "Image")  [assignment]
+mbodied/agents/language/language_agent.py:295: note: PEP 484 prohibits implicit Optional. Accordingly, mypy has changed its default to no_implicit_optional=True
+mbodied/agents/language/language_agent.py:295: note: Use https://github.com/hauntsaninja/no_implicit_optional to automatically upgrade your codebase
+mbodied/agents/language/language_agent.py:295: error: Incompatible default for argument "context" (default has type "None", argument has type "list[Any] | str | Image | Message")  [assignment]
+mbodied/agents/language/language_agent.py:308: error: Argument 1 to "__iadd__" of "list" has incompatible type "list[Any] | str | Image | Message"; expected "Iterable[Message]"  [arg-type]
+mbodied/agents/language/language_agent.py:314: error: Argument 1 to "append" of "list" has incompatible type "Image"; expected "str"  [arg-type]
+mbodied/agents/language/language_agent.py:316: error: List item 0 has incompatible type "str | Image | Message"; expected "str"  [list-item]
+mbodied/agents/language/language_agent.py:330: error: Incompatible default for argument "image" (default has type "None", argument has type "Image")  [assignment]
+mbodied/agents/language/language_agent.py:330: note: PEP 484 prohibits implicit Optional. Accordingly, mypy has changed its default to no_implicit_optional=True
+mbodied/agents/language/language_agent.py:330: note: Use https://github.com/hauntsaninja/no_implicit_optional to automatically upgrade your codebase
+mbodied/agents/language/language_agent.py:331: error: Incompatible default for argument "context" (default has type "None", argument has type "list[Any] | str | Image | Message")  [assignment]
+mbodied/agents/language/language_agent.py:331: note: PEP 484 prohibits implicit Optional. Accordingly, mypy has changed its default to no_implicit_optional=True
+mbodied/agents/language/language_agent.py:331: note: Use https://github.com/hauntsaninja/no_implicit_optional to automatically upgrade your codebase
+mbodied/agents/language/language_agent.py:357: error: Item "type" of "type | None" has no attribute "DEFAULT_MODEL"  [union-attr]
+mbodied/agents/language/language_agent.py:357: error: Item "None" of "type | None" has no attribute "DEFAULT_MODEL"  [union-attr]
+mbodied/agents/language/language_agent.py:358: error: Item "type" of "type | None" has no attribute "predict"  [union-attr]
+mbodied/agents/language/language_agent.py:358: error: Item "None" of "type | None" has no attribute "predict"  [union-attr]
+mbodied/agents/language/language_agent.py:362: error: Incompatible default for argument "image" (default has type "None", argument has type "Image")  [assignment]
+mbodied/agents/language/language_agent.py:362: note: PEP 484 prohibits implicit Optional. Accordingly, mypy has changed its default to no_implicit_optional=True
+mbodied/agents/language/language_agent.py:362: note: Use https://github.com/hauntsaninja/no_implicit_optional to automatically upgrade your codebase
+mbodied/agents/language/language_agent.py:362: error: Incompatible default for argument "context" (default has type "None", argument has type "list[Any] | str | Image | Message")  [assignment]
+mbodied/agents/language/language_agent.py:367: error: Item "type" of "type | None" has no attribute "DEFAULT_MODEL"  [union-attr]
+mbodied/agents/language/language_agent.py:367: error: Item "None" of "type | None" has no attribute "DEFAULT_MODEL"  [union-attr]
+mbodied/agents/language/language_agent.py:370: error: Item "type" of "type | None" has no attribute "stream"  [union-attr]
+mbodied/agents/language/language_agent.py:370: error: Item "None" of "type | None" has no attribute "stream"  [union-attr]
+mbodied/agents/language/language_agent.py:376: error: Incompatible default for argument "image" (default has type "None", argument has type "Image")  [assignment]
+mbodied/agents/language/language_agent.py:376: note: PEP 484 prohibits implicit Optional. Accordingly, mypy has changed its default to no_implicit_optional=True
+mbodied/agents/language/language_agent.py:376: note: Use https://github.com/hauntsaninja/no_implicit_optional to automatically upgrade your codebase
+mbodied/agents/language/language_agent.py:376: error: Incompatible default for argument "context" (default has type "None", argument has type "list[Any] | str | Image | Message")  [assignment]
+mbodied/agents/language/language_agent.py:381: error: Item "type" of "type | None" has no attribute "DEFAULT_MODEL"  [union-attr]
+mbodied/agents/language/language_agent.py:381: error: Item "None" of "type | None" has no attribute "DEFAULT_MODEL"  [union-attr]
+mbodied/agents/language/language_agent.py:384: error: Item "type" of "type | None" has no attribute "astream"  [union-attr]
+mbodied/agents/language/language_agent.py:384: error: Item "None" of "type | None" has no attribute "astream"  [union-attr]
+mbodied/agents/sense/audio/audio_agent.py:22: error: Library stubs not installed for "playsound"  [import-untyped]
+mbodied/agents/sense/audio/audio_agent.py:22: note: Hint: "python3 -m pip install types-playsound"
+mbodied/agents/sense/audio/audio_agent.py:22: note: (or run "mypy --install-types" to install all missing stub packages)
+mbodied/agents/sense/audio/audio_agent.py:23: error: Library stubs not installed for "pyaudio"  [import-untyped]
+mbodied/agents/sense/audio/audio_agent.py:23: note: Hint: "python3 -m pip install types-pyaudio"
+mbodied/agents/sense/audio/audio_agent.py:55: error: Incompatible default for argument "api_key" (default has type "None", argument has type "str")  [assignment]
+mbodied/agents/sense/audio/audio_agent.py:55: note: PEP 484 prohibits implicit Optional. Accordingly, mypy has changed its default to no_implicit_optional=True
+mbodied/agents/sense/audio/audio_agent.py:55: note: Use https://github.com/hauntsaninja/no_implicit_optional to automatically upgrade your codebase
+mbodied/agents/sense/audio/audio_agent.py:77: error: Cannot find implementation or library stub for module named "whisper"  [import-not-found]
+mbodied/agents/sense/audio/audio_agent.py:163: error: Incompatible default for argument "api_key" (default has type "None", argument has type "str")  [assignment]
+mbodied/agents/sense/audio/audio_agent.py:163: note: PEP 484 prohibits implicit Optional. Accordingly, mypy has changed its default to no_implicit_optional=True
+mbodied/agents/sense/audio/audio_agent.py:163: note: Use https://github.com/hauntsaninja/no_implicit_optional to automatically upgrade your codebase
+mbodied/agents/sense/audio/audio_agent.py:178: error: Argument "voice" has incompatible type "str"; expected "Literal['alloy', 'echo', 'fable', 'onyx', 'nova', 'shimmer']"  [arg-type]
+mbodied/agents/motion/openvla_agent.py:36: error: Signature of "act" incompatible with supertype "MotorAgent"  [override]
+mbodied/agents/motion/openvla_agent.py:36: note:      Superclass:
+mbodied/agents/motion/openvla_agent.py:36: note:          def act(self, **kwargs: Any) -> Motion
+mbodied/agents/motion/openvla_agent.py:36: note:      Subclass:
+mbodied/agents/motion/openvla_agent.py:36: note:          def act(self, instruction: str, image: Image, unnorm_key: str = ...) -> Motion
+mbodied/agents/motion/openvla_agent.py:49: error: "type" has no attribute "predict"  [attr-defined]
+mbodied/agents/motion/openvla_agent.py:52: error: Incompatible return value type (got "Sample", expected "Motion")  [return-value]
+mbodied/agents/sense/segmentation_agent.py:26: error: Signature of "act" incompatible with supertype "SensoryAgent"  [override]
+mbodied/agents/sense/segmentation_agent.py:26: note:      Superclass:
+mbodied/agents/sense/segmentation_agent.py:26: note:          def act(self, **kwargs: Any) -> SensorReading
+mbodied/agents/sense/segmentation_agent.py:26: note:      Subclass:
+mbodied/agents/sense/segmentation_agent.py:26: note:          def act(self, image: Image, input_data: BBox2D | list[BBox2D] | PixelCoords, *args: Any, api_name: str = ..., **kwargs: Any) -> tuple[Image, ndarray[Any, Any]]
+mbodied/agents/sense/segmentation_agent.py:62: error: "type" has no attribute "predict"  [attr-defined]
+mbodied/agents/sense/segmentation_agent.py:75: error: Item "None" of "Image | None" has no attribute "show"  [union-attr]
+mbodied/agents/sense/segmentation_agent.py:79: error: Item "None" of "Image | None" has no attribute "show"  [union-attr]
+mbodied/agents/sense/object_pose_estimator_3d.py:4: error: Skipping analyzing "gradio_client": module is installed, but missing library stubs or py.typed marker  [import-untyped]
+mbodied/agents/sense/object_pose_estimator_3d.py:58: error: Signature of "act" incompatible with supertype "SensoryAgent"  [override]
+mbodied/agents/sense/object_pose_estimator_3d.py:58: note:      Superclass:
+mbodied/agents/sense/object_pose_estimator_3d.py:58: note:          def act(self, **kwargs: Any) -> SensorReading
+mbodied/agents/sense/object_pose_estimator_3d.py:58: note:      Subclass:
+mbodied/agents/sense/object_pose_estimator_3d.py:58: note:          def act(self, rgb_image_path: str, depth_image_path: str, camera_intrinsics: list[float] | ndarray[Any, Any], distortion_coeffs: list[float] | None = ..., aruco_pose_world_frame: Pose6D | None = ..., object_classes: list[str] | None = ..., confidence_threshold: float | None = ..., using_realsense: bool = ...) -> dict[Any, Any]
+mbodied/agents/sense/object_detection_agent.py:37: error: Signature of "act" incompatible with supertype "SensoryAgent"  [override]
+mbodied/agents/sense/object_detection_agent.py:37: note:      Superclass:
+mbodied/agents/sense/object_detection_agent.py:37: note:          def act(self, **kwargs: Any) -> SensorReading
+mbodied/agents/sense/object_detection_agent.py:37: note:      Subclass:
+mbodied/agents/sense/object_detection_agent.py:37: note:          def act(self, image: Image, objects: list[str] | str, model_type: str = ..., *args: Any, api_name: str = ..., **kwargs: Any) -> World
+mbodied/agents/sense/object_detection_agent.py:64: error: "type" has no attribute "predict"  [attr-defined]
+mbodied/agents/sense/object_detection_agent.py:78: error: Item "None" of "Image | None" has no attribute "pil"  [union-attr]
+mbodied/agents/sense/object_detection_agent.py:78: error: Item "None" of "Image | Any | None" has no attribute "show"  [union-attr]
+mbodied/agents/sense/depth_estimation_agent.py:39: error: Signature of "act" incompatible with supertype "SensoryAgent"  [override]
+mbodied/agents/sense/depth_estimation_agent.py:39: note:      Superclass:
+mbodied/agents/sense/depth_estimation_agent.py:39: note:          def act(self, **kwargs: Any) -> SensorReading
+mbodied/agents/sense/depth_estimation_agent.py:39: note:      Subclass:
+mbodied/agents/sense/depth_estimation_agent.py:39: note:          def act(self, image: Image, *args: Any, api_name: str = ..., **kwargs: Any) -> Image
+mbodied/agents/sense/depth_estimation_agent.py:52: error: "type" has no attribute "predict"  [attr-defined]
+mbodied/agents/sense/depth_estimation_agent.py:60: error: Item "None" of "Image | None" has no attribute "show"  [union-attr]
+mbodied/agents/cli.py:33: error: Item "None" of "Image | None" has no attribute "pil"  [union-attr]
+mbodied/agents/cli.py:33: error: Item "None" of "Image | Any | None" has no attribute "show"  [union-attr]
+mbodied/agents/cli.py:45: error: Item "None" of "Image | None" has no attribute "show"  [union-attr]
+mbodied/agents/cli.py:74: error: Item "None" of "Image | None" has no attribute "show"  [union-attr]
+mbodied/agents/auto/auto_agent.py:155: error: Incompatible types in assignment (expression has type "Agent", variable has type "AutoAgent")  [assignment]

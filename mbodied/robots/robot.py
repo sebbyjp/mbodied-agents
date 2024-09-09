@@ -14,8 +14,10 @@
 
 import asyncio
 from abc import ABC, abstractmethod
+from contextlib import contextmanager
+from typing import Any, Generator, Self
 
-from mbodied.robots.robot_recording import RobotRecorder
+from mbodied.robots.robot_recording import Recorder
 from mbodied.types.sample import Sample
 
 
@@ -53,17 +55,18 @@ class Robot(ABC):
     """
 
     @abstractmethod
-    def __init__(self, **kwargs):
+    def __init__(self, *args, **kwargs):
         """Initializes the robot hardware interface.
 
         Args:
+            args: Arguments to pass to the robot hardware interface.
             kwargs: Additional arguments to pass to the robot hardware interface.
         """
         raise NotImplementedError
 
     @abstractmethod
-    def do(self, *args, **kwargs) -> None:  # noqa
-        """Executes motion.
+    def do(self,  *args, state: Sample | Any | None = None, **kwargs) -> None:
+        """Executes raw motion commands on the robot hardware. Lower-level than step or act.
 
         Args:
             args: Arguments to pass to the robot hardware interface.
@@ -80,8 +83,9 @@ class Robot(ABC):
         """
         return await asyncio.to_thread(self.do, *args, **kwargs)
 
-    def fetch(self, *args, **kwargs) -> None:
-        """Fetches data from the hardware.
+
+    def act(self, *args, **kwargs) -> None:
+        """Captures continuous data from the hardware asynchronously.
 
         Args:
             args: Arguments to pass to the robot hardware interface.
@@ -89,40 +93,31 @@ class Robot(ABC):
         """
         raise NotImplementedError
 
-    def capture(self, *args, **kwargs) -> None:
-        """Captures continuous data from the hardware.
-
-        Args:
-            args: Arguments to pass to the robot hardware interface.
-            kwargs: Additional arguments to pass to the robot hardware interface.
-        """
-        raise NotImplementedError
-
-    def get_observation(self) -> Sample:
+    def observe(self) -> Sample:
         """(Optional for robot recorder): Captures the observation/image of the robot.
 
         This will be used by the robot recorder to record the current observation/image of the robot.
         """
         raise NotImplementedError
 
-    def get_state(self) -> Sample:
-        """(Optional for robot recorder): Gets the current state (pose) of the robot.
+    def infer(self) -> Sample:
+        """Gets the current state of the robot.
 
         This will be used by the robot recorder to record the current state of the robot.
         """
         raise NotImplementedError
 
-    def prepare_action(self, old_state: Sample, new_state: Sample) -> Sample:
-        """(Optional for robot recorder): Prepare the the action between two robot states.
+    # def prepare_action(self, old_state: Sample, new_state: Sample) -> Sample:
+    #     """(Optional for robot recorder): Prepare the the action between two robot states.
 
-        This is what you are recording as the action. For example, substract old from new hand position
-        and use absolute value for grasp, etc.
+    #     This is what you are recording as the action. For example, substract old from new hand position
+    #     and use absolute value for grasp.
 
-        Args:
-            old_state: The old state (pose) of the robot.
-            new_state: The new state (pose) of the robot.
-        """
-        raise NotImplementedError
+    #     Args:
+    #         old_state: The old state (pose) of the robot.
+    #         new_state: The new state (pose) of the robot.
+    #     """
+    #     raise NotImplementedError
 
     def init_recorder(
         self,
@@ -131,7 +126,7 @@ class Robot(ABC):
         on_static: str = "omit",
     ) -> None:
         """Initializes the recorder for the robot."""
-        self.robot_recorder = RobotRecorder(
+        self._recorder = Recorder(
             self.get_state,
             self.get_observation,
             self.prepare_action,
@@ -140,7 +135,8 @@ class Robot(ABC):
             on_static=on_static,
         )
 
-    def record(self, task: str) -> RobotRecorder:
+    @contextmanager
+    def record(self, task: str) -> Generator[Self, None, None]:
         """Start recording with the given task with context manager.
 
         Usage:
@@ -151,12 +147,8 @@ class Robot(ABC):
             ...
         ```
         """
-        return self.robot_recorder.record(task)
-
-    def start_recording(self, task: str) -> None:
-        """Start recording with the given task."""
-        self.robot_recorder.start_recording(task)
-
-    def stop_recording(self) -> None:
-        """Stop recording."""
-        self.robot_recorder.stop_recording()
+        try:
+            self._recorder.start_recording(task)
+            yield self._recorder
+        finally:
+            self._recorder.stop_recording()

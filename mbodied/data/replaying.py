@@ -21,11 +21,10 @@ import click
 import h5py
 import numpy as np
 from datasets import Dataset, DatasetInfo, Features, Image, Value
+from embdata.features import to_features_dict as infer_features
 from h5py import string_dtype
-from huggingface_hub import login
 from PIL import Image as PILImage
 
-from embdata.features import to_features_dict as infer_features
 from mbodied.types.sample import Sample
 from mbodied.types.sense.vision import Image as MbImage
 

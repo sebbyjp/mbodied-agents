@@ -28,6 +28,7 @@ from h5py import string_dtype
 from mbodied.types.sample import Sample
 from mbodied.types.sense.vision import Image
 
+
 def add_space_metadata(space, group) -> None:
     group.attrs["space_type"] = space.__class__.__name__
 
@@ -90,7 +91,7 @@ class Recorder:
     """Records a dataset to an h5 file. Saves images defined to folder with _frames appended to the name stem.
 
     Example:
-      ```
+    ```python
       # Define the observation and action spaces
       observation_space = spaces.Dict({
           'image': spaces.Box(low=0, high=255, shape=(224, 224, 3), dtype=np.uint8),
@@ -146,7 +147,7 @@ class Recorder:
         state_space: spaces.Dict | str | None = None,
         supervision_space: spaces.Dict | str | None = None,
         out_dir: str = "saved_datasets",
-        image_keys_to_save: list = None,
+        image_keys_to_save: list | None = None,
     ):
         """Initialize the Recorder.
 
@@ -195,7 +196,7 @@ class Recorder:
         copy_and_delete_old(self.filename)
         self.file = h5py.File(self.filename, "a")
 
-    def configure_root_spaces(self, **spaces: spaces.Dict):
+    def configure_root_spaces(self, **spaces: spaces.Dict) -> tuple[list[str], list[spaces.Dict]]:
         """Configure the root spaces.
 
         Args:

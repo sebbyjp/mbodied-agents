@@ -1,0 +1,757 @@
+mbodied/agents/agent.py:28:1: E402 Module level import not at top of file
+   |
+28 | from mbodied.data import Sample
+   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ E402
+   |
+
+mbodied/agents/agent.py:82:121: E501 Line too long (139 > 120)
+   |
+80 |         except Exception as e:
+81 |             logging.error(
+82 |                 f"Failed to initialize Gradio backend: {e}. Defaulting to Httpx backend. Ensure that the source is a valid http endpoint.",
+   |                                                                                                                         ^^^^^^^^^^^^^^^^^^^ E501
+83 |             )
+84 |             try:
+   |
+
+mbodied/agents/agent.py:88:17: B904 Within an `except` clause, raise exceptions with `raise ... from err` or `raise ... from None` to distinguish them from errors in exception handling
+   |
+86 |               except Exception as e:
+87 |                   logging.error(f"Failed to initialize Httpx backend: {e}.")
+88 |                   raise ValueError(
+   |  _________________^
+89 | |                     f"Failed to initialize backend for model source: {model_src}. Pleases select one of {Agent.ACTOR_MAP.keys()} or valid huggingface space or http endpoint.",
+90 | |                 )
+   | |_________________^ B904
+91 |   
+92 |       def __init__(
+   |
+
+mbodied/agents/agent.py:89:121: E501 Line too long (175 > 120)
+   |
+87 |                 logging.error(f"Failed to initialize Httpx backend: {e}.")
+88 |                 raise ValueError(
+89 |                     f"Failed to initialize backend for model source: {model_src}. Pleases select one of {Agent.ACTOR_MAP.keys()} or valid huggingface space or http endpoint.",
+   |                                                                                                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ E501
+90 |                 )
+   |
+
+mbodied/agents/auto/auto_agent.py:34:121: E501 Line too long (121 > 120)
+   |
+32 |     TASK_TO_AGENT_MAP: Dict[
+33 |         Literal[
+34 |             "language", "motion-openvla", "sense-object-detection", "sense-image-segmentation", "sense-depth-estimation",
+   |                                                                                                                         ^ E501
+35 |         ],
+36 |         Type[Agent],
+   |
+
+mbodied/agents/backends/httpx_backend.py:61:9: D417 Missing argument description in the docstring for `__init__`: `**kwargs`
+   |
+59 |     DEFAULT_MODEL = "reka-core-20240501"
+60 | 
+61 |     def __init__(
+   |         ^^^^^^^^ D417
+62 |         self, api_key=None, endpoint: str | None = None, serializer: Serializer | None = None, **kwargs,
+63 |     ) -> None:
+   |
+
+mbodied/agents/backends/ollama_backend.py:56:9: ANN206 Missing return type annotation for classmethod `extract_stream`
+   |
+55 |     @classmethod
+56 |     def extract_stream(cls, response):
+   |         ^^^^^^^^^^^^^^ ANN206
+57 |         try:
+58 |             parsed = json.loads(response)
+   |
+   = help: Add return type annotation
+
+mbodied/agents/backends/ollama_backend.py:90:5: ERA001 Found commented-out code
+   |
+88 |     # for chunk in client._stream_completion([Message(role="user", content=[text, Image(url=image_url)])], "llava"):
+89 |     #     if chunk.strip():
+90 |     #         response += chunk
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^ ERA001
+91 |     #         print(f"Response: {response}")
+92 |     # run = client._astream_completion([Message(role="user", content=[text, Image(url=image_url)])], "llama3")
+   |
+   = help: Remove commented-out code
+
+mbodied/agents/backends/ollama_backend.py:91:5: ERA001 Found commented-out code
+   |
+89 |     #     if chunk.strip():
+90 |     #         response += chunk
+91 |     #         print(f"Response: {response}")
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ ERA001
+92 |     # run = client._astream_completion([Message(role="user", content=[text, Image(url=image_url)])], "llama3")
+   |
+   = help: Remove commented-out code
+
+mbodied/agents/backends/ollama_backend.py:92:5: ERA001 Found commented-out code
+   |
+90 |     #         response += chunk
+91 |     #         print(f"Response: {response}")
+92 |     # run = client._astream_completion([Message(role="user", content=[text, Image(url=image_url)])], "llama3")
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ ERA001
+93 | 
+94 |     # async def runner():
+   |
+   = help: Remove commented-out code
+
+mbodied/agents/backends/ollama_backend.py:96:5: ERA001 Found commented-out code
+   |
+94 |     # async def runner():
+95 |     #     async for response in run:
+96 |     #         print(response)
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^ ERA001
+97 |     # asyncio.run(runner())
+   |
+   = help: Remove commented-out code
+
+mbodied/agents/backends/ollama_backend.py:97:5: ERA001 Found commented-out code
+   |
+95 |     #     async for response in run:
+96 |     #         print(response)
+97 |     # asyncio.run(runner())
+   |     ^^^^^^^^^^^^^^^^^^^^^^^ ERA001
+   |
+   = help: Remove commented-out code
+
+mbodied/agents/backends/openai_backend.py:148:9: ANN201 Missing return type annotation for public function `stream`
+    |
+146 |         return completion.choices[0].message.content
+147 | 
+148 |     def stream(self, message: Message, context: List[Message] = None, model: str = "gpt-4o", **kwargs):
+    |         ^^^^^^ ANN201
+149 |         """Streams a completion for the given messages using the OpenAI API standard.
+    |
+    = help: Add return type annotation
+
+mbodied/agents/backends/openai_backend.py:170:15: ANN201 Missing return type annotation for public function `astream`
+    |
+168 |             yield chunk.choices[0].delta.content or ""
+169 | 
+170 |     async def astream(self, message: Message, context: List[Message] = None, model: str = "gpt-4o", **kwargs):
+    |               ^^^^^^^ ANN201
+171 |         """Streams a completion asynchronously for the given messages using the OpenAI API standard.
+    |
+    = help: Add return type annotation
+
+mbodied/agents/backends/vision2seq_backend.py:29:7: F811 Redefinition of unused `Vision2SeqBackend` from line 25
+   |
+29 | class Vision2SeqBackend(Backend):
+   |       ^^^^^^^^^^^^^^^^^ F811
+30 |     """Vision2SeqBackend backend that runs locally to generate robot actions.
+   |
+   = help: Remove definition: `Vision2SeqBackend`
+
+mbodied/agents/config.py:14:121: E501 Line too long (132 > 120)
+   |
+13 | """
+14 | The logic of Embodied Agents V2 is not unsimilar to general concurrent programming.Every agent has a responsibility, a local state, 
+   |                                                                                                                         ^^^^^^^^^^^^ E501
+15 | a shared state, and completion configuration for querying an endpoint. The novelty of this framework,
+16 | is that emphasis is placed on synchronizing a shared state with the latest and most accurate information. This paradigm is
+   |
+
+mbodied/agents/config.py:16:121: E501 Line too long (122 > 120)
+   |
+14 | The logic of Embodied Agents V2 is not unsimilar to general concurrent programming.Every agent has a responsibility, a local state, 
+15 | a shared state, and completion configuration for querying an endpoint. The novelty of this framework,
+16 | is that emphasis is placed on synchronizing a shared state with the latest and most accurate information. This paradigm is
+   |                                                                                                                         ^^ E501
+17 | similar to Behavior Trees but requires only 
+   |
+
+mbodied/agents/config.py:29:121: E501 Line too long (127 > 120)
+   |
+27 | the whole system fails. Oh and the whole group needs to do this at least 10 times a second.
+28 | 
+29 | You may wonder, isn't that just what normal websites are doing which is even faster and handles more processes? Yes... and no. 
+   |                                                                                                                         ^^^^^^^ E501
+30 | The difference is the complexity or richness of the data that is being sent and operated on. It must be sent
+   |
+
+mbodied/agents/config.py:40:121: E501 Line too long (128 > 120)
+   |
+39 | For example, a web server may have no need for a real-time shared state but an embodied collective of agents
+40 | MUST stop moving its hand before it hits the table. So instead of considering topologies or specific communication patterns like
+   |                                                                                                                         ^^^^^^^^ E501
+41 | server/client or pub/sub, we define only the FSM and the transitions. Any message passing or network protocol can
+42 | be hooked up with currently http, grpc, websockets, and ROS currently supported.
+   |
+
+mbodied/agents/config.py:85:121: E501 Line too long (189 > 120)
+   |
+83 | class CompletionConfig(TypedDict, total=False):
+84 |     guidance: Guidance | None = Field(default=None, examples=[Guidance(choices=["Yes", "No"])])
+85 |     pre_process: Callable[[str, State], str] | BaseAgentConfig | None = Field(default=None, description="A callable or agent that takes the prompt and state and returns a modified prompt.")
+   |                                                                                                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ E501
+86 |     post_process: Callable[[str, str, State], str] | BaseAgentConfig| None = Field(default=None, examples=[lambda prompt, response: prompt if response == "yes" else ""],
+87 |         description="A callable or agent that takes the prompt, response, and state and returns a modified prompt.")
+   |
+
+mbodied/agents/config.py:86:121: E501 Line too long (169 > 120)
+   |
+84 |     guidance: Guidance | None = Field(default=None, examples=[Guidance(choices=["Yes", "No"])])
+85 |     pre_process: Callable[[str, State], str] | BaseAgentConfig | None = Field(default=None, description="A callable or agent that takes the prompt and state and returns a modified prompt.")
+86 |     post_process: Callable[[str, str, State], str] | BaseAgentConfig| None = Field(default=None, examples=[lambda prompt, response: prompt if response == "yes" else ""],
+   |                                                                                                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ E501
+87 |         description="A callable or agent that takes the prompt, response, and state and returns a modified prompt.")
+88 |     prompt: str | Callable | None = Field(
+   |
+
+mbodied/agents/config.py:90:121: E501 Line too long (154 > 120)
+   |
+88 |     prompt: str | Callable | None = Field(
+89 |       default="Give a command for how the robot should move in the following json format:",
+90 |       examples=[lambda x, y: f"Translate the following text to {x} if it is {y} and vice versa. Respond with only the translated text and nothing else."],
+   |                                                                                                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ E501
+91 |       description="The prompt to be used in the completion. Use a callable if you want to add extra information at the time of agent action.",
+92 |     )
+   |
+
+mbodied/agents/config.py:91:121: E501 Line too long (142 > 120)
+   |
+89 |       default="Give a command for how the robot should move in the following json format:",
+90 |       examples=[lambda x, y: f"Translate the following text to {x} if it is {y} and vice versa. Respond with only the translated text and nothing else."],
+91 |       description="The prompt to be used in the completion. Use a callable if you want to add extra information at the time of agent action.",
+   |                                                                                                                         ^^^^^^^^^^^^^^^^^^^^^^ E501
+92 |     )
+93 |     reminder: str | None = Field(default=None, examples=["Remember to respond with only the translated text and nothing else."])
+   |
+
+mbodied/agents/config.py:93:121: E501 Line too long (128 > 120)
+   |
+91 |       description="The prompt to be used in the completion. Use a callable if you want to add extra information at the time of agent action.",
+92 |     )
+93 |     reminder: str | None = Field(default=None, examples=["Remember to respond with only the translated text and nothing else."])
+   |                                                                                                                         ^^^^^^^^ E501
+   |
+
+mbodied/agents/config.py:104:121: E501 Line too long (144 > 120)
+    |
+102 |     sub_agents: list["AgentConfig"] | None = Field(default=None)
+103 |     state: State = Field(default_factory=State)
+104 |     gradio_io: tuple[Component, Component] | None = Field(default=None, description="The input and output components for the Gradio interface.")
+    |                                                                                                                         ^^^^^^^^^^^^^^^^^^^^^^^^ E501
+    |
+
+mbodied/agents/config.py:118:121: E501 Line too long (150 > 120)
+    |
+117 | """
+118 | Shared State is a dictionary that is shared between all the agents in the pipeline. It is used to store information that is needed by multiple agents.
+    |                                                                                                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ E501
+119 | An example of shared state is the `clear` key that is used to clear the state of all the agents in the pipeline.
+120 | """
+    |
+
+mbodied/agents/config.py:184:121: E501 Line too long (159 > 120)
+    |
+182 |     source_language: str = "en"
+183 |     target_language: str = "en"
+184 |     prompt: Callable = lambda x, y: f"Translate the following text to {x} if it is {y} and vice versa. Respond with only the translated text and nothing else."
+    |                                                                                                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ E501
+185 |     reminder: str = "Remember to respond with only the translated text and nothing else."
+    |
+
+mbodied/agents/config.py:188:121: E501 Line too long (247 > 120)
+    |
+187 | class InstructConfig(CompletionConfig):
+188 |     prompt: str = "Determine whether the following text is a command for physical movement,other actionable command, question, incomplete statement, or background noise. Respond with only ['movement', 'command', 'question', 'incomplete', 'noise']"
+    |                                                                                                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ E501
+189 |     reminder: str = "Remember that you should be very confident to label a command as movement. If you are not sure, label it as noise. You should be very eager to label a question as a question and a command as a command. If you are not sure, label it as incomplete."
+190 |     guidance: Guidance = Guidance(choices=["movement","command", "question", "incomplete", "noise"])
+    |
+
+mbodied/agents/config.py:189:121: E501 Line too long (268 > 120)
+    |
+187 | class InstructConfig(CompletionConfig):
+188 |     prompt: str = "Determine whether the following text is a command for physical movement,other actionable command, question, incomplete statement, or background noise. Respond with only ['movement', 'command', 'question', 'incomplete', 'noise']"
+189 |     reminder: str = "Remember that you should be very confident to label a command as movement. If you are not sure, label it as noise. You should be very eager to label a question as a question and a command as a command. If you are not sure, label it as incomplete."
+    |                                                                                                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ E501
+190 |     guidance: Guidance = Guidance(choices=["movement","command", "question", "incomplete", "noise"])
+191 |     post_process: Callable[[str, str, State], str] = instruct_post_process
+    |
+
+mbodied/agents/language/language_agent.py:75:9: D105 Missing docstring in magic method
+   |
+73 |     n: int
+74 | 
+75 |     def __iter__(self):
+   |         ^^^^^^^^ D105
+76 |         yield self.prompt
+77 |         yield self.n
+   |
+
+mbodied/agents/language/language_agent.py:79:9: D105 Missing docstring in magic method
+   |
+77 |         yield self.n
+78 | 
+79 |     def __getitem__(self, key):
+   |         ^^^^^^^^^^^ D105
+80 |         if key == 0:
+81 |             return self.prompt
+   |
+
+mbodied/agents/language/language_agent.py:101:121: E501 Line too long (241 > 120)
+    |
+ 99 |     """An agent that can interact with users using natural language.
+100 | 
+101 |     This class extends the functionality of a base Agent to handle natural language interactions. It manages memory, dataset-recording, and asynchronous remote inference, supporting multiple platforms including OpenAI, Anthropic, and Gradio.
+    |                                                                                                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ E501
+102 | 
+103 |     Attributes:
+    |
+
+mbodied/agents/language/language_agent.py:247:121: E501 Line too long (123 > 120)
+    |
+245 |             image: The image to be processed.
+246 |             parse_target: The target type to parse the response into.
+247 |             context: Additonal context to include in the response. If context is a list of messages, it will be interpreted
+    |                                                                                                                         ^^^ E501
+248 |                 as new memory.
+249 |             model: The model to use for the response.
+    |
+
+mbodied/agents/language/language_agent.py:282:121: E501 Line too long (128 > 120)
+    |
+280 |         **kwargs,
+281 |     ) -> Sample:
+282 |         """Responds to the given instruction, image, and context asynchronously and parses the response into a Sample object."""
+    |                                                                                                                         ^^^^^^^^ E501
+283 |         return await asyncio.to_thread(
+284 |             self.act_and_parse,
+    |
+
+mbodied/agents/language/language_agent.py:302:121: E501 Line too long (123 > 120)
+    |
+300 |             instruction: The instruction to be processed.
+301 |             image: The image to be processed.
+302 |             context: Additonal context to include in the response. If context is a list of messages, it will be interpreted
+    |                                                                                                                         ^^^ E501
+303 |                 as new memory.
+304 |         """
+    |
+
+mbodied/agents/language/language_agent.py:321:69: ARG002 Unused method argument: `memory`
+    |
+319 |         return message, memory
+320 | 
+321 |     def postprocess_response(self, response: str, message: Message, memory: list[Message], **kwargs) -> str:
+    |                                                                     ^^^^^^ ARG002
+322 |         """Postprocess the response."""
+323 |         self.context.append(message)
+    |
+
+mbodied/agents/language/language_agent.py:321:94: ARG002 Unused method argument: `kwargs`
+    |
+319 |         return message, memory
+320 | 
+321 |     def postprocess_response(self, response: str, message: Message, memory: list[Message], **kwargs) -> str:
+    |                                                                                              ^^^^^^ ARG002
+322 |         """Postprocess the response."""
+323 |         self.context.append(message)
+    |
+
+mbodied/agents/language/language_agent.py:342:121: E501 Line too long (123 > 120)
+    |
+340 |             instruction: The instruction to be processed.
+341 |             image: The image to be processed.
+342 |             context: Additonal context to include in the response. If context is a list of messages, it will be interpreted
+    |                                                                                                                         ^^^ E501
+343 |                 as new memory.
+344 |             model: The model to use for the response.
+    |
+
+mbodied/agents/language/language_agent.py:379:9: ERA001 Found commented-out code
+    |
+377 |     ) -> AsyncGenerator[str, None]:
+378 |         # TODO(sebastian): fix this. Response is None maybe due to three nested async yields.
+379 |         # raise NotImplementedError("Async streaming is not supported for this agent.")
+    |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ ERA001
+380 |         message, memory = self.prepare_inputs(instruction, image, context)
+381 |         model = model or self.actor.DEFAULT_MODEL
+    |
+    = help: Remove commented-out code
+
+mbodied/agents/motion/openvla_agent.py:57:1: ERA001 Found commented-out code
+   |
+55 | # # Example usage:
+56 | # if __name__ == "__main__":
+57 | #     openvla_agent = OpenVlaAgent(model_src="https://api.mbodi.ai/community-models/")
+   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ ERA001
+58 | #     image = Image("resources/xarm.jpeg")
+59 | #     response = openvla_agent.act("move forward", image)
+   |
+   = help: Remove commented-out code
+
+mbodied/agents/motion/openvla_agent.py:58:1: ERA001 Found commented-out code
+   |
+56 | # if __name__ == "__main__":
+57 | #     openvla_agent = OpenVlaAgent(model_src="https://api.mbodi.ai/community-models/")
+58 | #     image = Image("resources/xarm.jpeg")
+   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ ERA001
+59 | #     response = openvla_agent.act("move forward", image)
+60 | #     print(response)
+   |
+   = help: Remove commented-out code
+
+mbodied/agents/motion/openvla_agent.py:59:1: ERA001 Found commented-out code
+   |
+57 | #     openvla_agent = OpenVlaAgent(model_src="https://api.mbodi.ai/community-models/")
+58 | #     image = Image("resources/xarm.jpeg")
+59 | #     response = openvla_agent.act("move forward", image)
+   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ ERA001
+60 | #     print(response)
+   |
+   = help: Remove commented-out code
+
+mbodied/agents/motion/openvla_agent.py:60:1: ERA001 Found commented-out code
+   |
+58 | #     image = Image("resources/xarm.jpeg")
+59 | #     response = openvla_agent.act("move forward", image)
+60 | #     print(response)
+   | ^^^^^^^^^^^^^^^^^^^^^ ERA001
+   |
+   = help: Remove commented-out code
+
+mbodied/agents/sense/audio/audio_agent.py:85:9: ANN201 Missing return type annotation for public function `act`
+   |
+83 |             self.client = OpenAI(api_key=api_key or os.getenv("OPENAI_API_KEY"))
+84 | 
+85 |     def act(self, *args, **kwargs):
+   |         ^^^ ANN201
+86 |         return self.listen(*args, **kwargs)
+   |
+   = help: Add return type annotation
+
+mbodied/agents/sense/audio/audio_agent.py:121:18: PTH123 `open()` should be replaced by `Path.open()`
+    |
+119 |         transcription = None
+120 |         try:
+121 |             with open(self.listen_filename, "rb") as audio_file:
+    |                  ^^^^ PTH123
+122 |                 if self.run_local:
+123 |                     transcription = self.model.transcribe(self.listen_filename)["text"]
+    |
+
+mbodied/agents/sense/audio/audio_agent.py:131:35: PTH110 `os.path.exists()` should be replaced by `Path.exists()`
+    |
+129 |             return ""
+130 |         finally:
+131 |             if not keep_audio and os.path.exists(self.listen_filename):
+    |                                   ^^^^^^^^^^^^^^ PTH110
+132 |                 os.remove(self.listen_filename)
+133 |             return typed_input + transcription if transcription else ""
+    |
+
+mbodied/agents/sense/audio/audio_agent.py:132:17: PTH107 `os.remove()` should be replaced by `Path.unlink()`
+    |
+130 |         finally:
+131 |             if not keep_audio and os.path.exists(self.listen_filename):
+132 |                 os.remove(self.listen_filename)
+    |                 ^^^^^^^^^ PTH107
+133 |             return typed_input + transcription if transcription else ""
+    |
+
+mbodied/agents/sense/audio/audio_agent.py:133:13: B012 `return` inside `finally` blocks cause exceptions to be silenced
+    |
+131 |             if not keep_audio and os.path.exists(self.listen_filename):
+132 |                 os.remove(self.listen_filename)
+133 |             return typed_input + transcription if transcription else ""
+    |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ B012
+134 | 
+135 |     def record_audio(self) -> None:
+    |
+
+mbodied/agents/sense/audio/audio_agent.py:133:13: SIM107 Don't use `return` in `try`-`except` and `finally`
+    |
+131 |             if not keep_audio and os.path.exists(self.listen_filename):
+132 |                 os.remove(self.listen_filename)
+133 |             return typed_input + transcription if transcription else ""
+    |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ SIM107
+134 | 
+135 |     def record_audio(self) -> None:
+    |
+
+mbodied/agents/sense/audio/audio_agent.py:181:17: PTH123 `open()` should be replaced by `Path.open()`
+    |
+179 |                     input=message,
+180 |                 ) as response,
+181 |                 open(self.speak_filename, "wb") as out_file,
+    |                 ^^^^ PTH123
+182 |             ):
+183 |                 for chunk in response.iter_bytes():
+    |
+
+mbodied/agents/sense/audio/audio_agent.py:201:17: S605 Starting a process with a shell, possible injection detected
+    |
+199 |             if platform.system() == "Darwin" and not self.use_pyaudio:
+200 |                 # Only works on mac.
+201 |                 os.system("afplay " + filename)
+    |                 ^^^^^^^^^ S605
+202 |             else:
+203 |                 playsound.playsound(filename)
+    |
+
+mbodied/agents/sense/audio/audio_agent.py:207:16: PTH110 `os.path.exists()` should be replaced by `Path.exists()`
+    |
+205 |             logging.error(f"Error playing audio file {filename}: {e}")
+206 |         finally:
+207 |             if os.path.exists(filename):
+    |                ^^^^^^^^^^^^^^ PTH110
+208 |                 os.remove(filename)
+    |
+
+mbodied/agents/sense/audio/audio_agent.py:208:17: PTH107 `os.remove()` should be replaced by `Path.unlink()`
+    |
+206 |         finally:
+207 |             if os.path.exists(filename):
+208 |                 os.remove(filename)
+    |                 ^^^^^^^^^ PTH107
+    |
+
+mbodied/agents/sense/depth_estimation_agent.py:39:9: D417 Missing argument description in the docstring for `act`: `api_name`
+   |
+37 |         )
+38 | 
+39 |     def act(self, image: Image, *args, api_name: str = "/depth", **kwargs) -> Image:
+   |         ^^^ D417
+40 |         """Act based on the prompt and image using the remote depth estimation server.
+   |
+
+mbodied/agents/sense/object_detection_agent.py:23:121: E501 Line too long (134 > 120)
+   |
+22 | class ObjectDetectionAgent(SensoryAgent):
+23 |     """A object detection agent that uses a remote object detection, i.e. YOLOWorld, Grounding Dino, to detect objects in an image."""
+   |                                                                                                                         ^^^^^^^^^^^^^^ E501
+24 | 
+25 |     def __init__(
+   |
+
+mbodied/agents/sense/segmentation_agent.py:38:121: E501 Line too long (122 > 120)
+   |
+36 |         Args:
+37 |             image (Image): The image to act on.
+38 |             input_data (Union[BBox2D, List[BBox2D], PixelCoords]): The input data for segmentation, either a bounding box,
+   |                                                                                                                         ^^ E501
+39 |                 a list of bounding boxes, or pixel coordinates.
+40 |             *args: Variable length argument list.
+   |
+
+mbodied/data/__init__.py:25:121: E501 Line too long (129 > 120)
+   |
+23 |             raise AttributeError(f"module {module_name!r} has no attribute {name!r}") from e
+24 |         else:
+25 |             warnings.warn(f"{module_name!r} was moved to embdata. Please update your imports.", DeprecationWarning, stacklevel=2)
+   |                                                                                                                         ^^^^^^^^^ E501
+26 |             return imported_module
+   |
+
+mbodied/data/__init__.py:33:5: ANN201 Missing return type annotation for public function `to_features`
+   |
+32 | # Expose to_features_dict as to_features for backward compatibility
+33 | def to_features(*args, **kwargs):
+   |     ^^^^^^^^^^^ ANN201
+34 |     warnings.warn("to_features is deprecated. Use embdata.features.to_features_dict instead.", DeprecationWarning, stacklevel=2)
+35 |     from embdata.features import to_features_dict
+   |
+   = help: Add return type annotation
+
+mbodied/data/__init__.py:34:121: E501 Line too long (128 > 120)
+   |
+32 | # Expose to_features_dict as to_features for backward compatibility
+33 | def to_features(*args, **kwargs):
+34 |     warnings.warn("to_features is deprecated. Use embdata.features.to_features_dict instead.", DeprecationWarning, stacklevel=2)
+   |                                                                                                                         ^^^^^^^^ E501
+35 |     from embdata.features import to_features_dict
+36 |     return to_features_dict(*args, **kwargs)
+   |
+
+mbodied/data/recording.py:111:121: E501 Line too long (136 > 120)
+    |
+110 |       # Create a recorder instance
+111 |       recorder = Recorder(name='test_recorder', observation_space=observation_space, action_space=action_space, state_space=state_space)
+    |                                                                                                                         ^^^^^^^^^^^^^^^^ E501
+112 | 
+113 |       # Generate some sample data
+    |
+
+mbodied/data/recording.py:199:9: ANN201 Missing return type annotation for public function `configure_root_spaces`
+    |
+197 |         self.file = h5py.File(self.filename, "a")
+198 | 
+199 |     def configure_root_spaces(self, **spaces: spaces.Dict):
+    |         ^^^^^^^^^^^^^^^^^^^^^ ANN201
+200 |         """Configure the root spaces.
+    |
+    = help: Add return type annotation
+
+mbodied/data/recording.py:269:121: E501 Line too long (146 > 120)
+    |
+267 |             dataset[index] = value
+268 | 
+269 |     def record(self, observation: Any | None = None, action: Any | None = None, state: Any | None = None, supervision: Any | None = None) -> None:
+    |                                                                                                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^ E501
+270 |         """Record a timestep.
+    |
+
+mbodied/data/replaying.py:88:121: E501 Line too long (121 > 120)
+   |
+86 |         if size is None:
+87 |             logging.warning(
+88 |                 "No 'size' attribute found in the HDF5 file. The number of samples will be inferred from the first key.",
+   |                                                                                                                         ^ E501
+89 |             )
+90 |             try:
+   |
+
+mbodied/data/replaying.py:311:121: E501 Line too long (121 > 120)
+    |
+309 |                     image = np.asarray(observation["image"])
+310 |                     instruction = observation["instruction"]
+311 |                     yield {"observation": {"image": image, "instruction": instruction}, "action": action, "state": state}
+    |                                                                                                                         ^ E501
+    |
+
+mbodied/hardware/realsense_camera.py:196:9: S101 Use of `assert` detected
+    |
+194 |             ... )
+195 |         """
+196 |         assert matrix.shape == (3, 3), "Input matrix must be 3x3"
+    |         ^^^^^^ S101
+197 |         assert coeffs.shape == (5,), "Distortion coefficients must be a 1x5 array"
+    |
+
+mbodied/hardware/realsense_camera.py:197:9: S101 Use of `assert` detected
+    |
+195 |         """
+196 |         assert matrix.shape == (3, 3), "Input matrix must be 3x3"
+197 |         assert coeffs.shape == (5,), "Distortion coefficients must be a 1x5 array"
+    |         ^^^^^^ S101
+198 | 
+199 |         intrinsics = rs.intrinsics()
+    |
+
+mbodied/robots/robot_recording.py:43:121: E501 Line too long (122 > 120)
+   |
+41 |             frequency_hz: Frequency at which to record pose and image data (in Hz).
+42 |             recorder_kwargs: Keyword arguments to pass to the Recorder constructor.
+43 |             on_static: Whether to record on static poses or not. If "record", it will record when the robot is not moving.
+   |                                                                                                                         ^^ E501
+44 |         """
+45 |         if recorder_kwargs is None:
+   |
+
+mbodied/types/motion/motion.py:13:121: E501 Line too long (123 > 120)
+   |
+11 | The reference_frame is a string representing the reference frame for the coordinates (only applies to absolute motions).
+12 | 
+13 | To create a new Pydantic model for a motion, inherit from the Motion class and define pydantic fields with the MotionField,
+   |                                                                                                                         ^^^ E501
+14 | function as you would with any other Pydantic field.
+   |
+
+mbodied/types/ndarray.py:22:1: E402 Module level import not at top of file
+   |
+20 | NumpyArrayFp32 = pnd.NpNDArrayFp32
+21 | 
+22 | from typing import TypeVar
+   | ^^^^^^^^^^^^^^^^^^^^^^^^^^ E402
+23 | 
+24 | # Define a type variable for the data type of the array
+   |
+
+mbodied/types/ndarray.py:27:1: E402 Module level import not at top of file
+   |
+25 | T = TypeVar('T')
+26 | 
+27 | from mypy.nodes import TypeInfo
+   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ E402
+28 | from mypy.plugin import AnalyzeTypeContext, Plugin
+29 | from mypy.types import Type
+   |
+
+mbodied/types/ndarray.py:28:1: E402 Module level import not at top of file
+   |
+27 | from mypy.nodes import TypeInfo
+28 | from mypy.plugin import AnalyzeTypeContext, Plugin
+   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ E402
+29 | from mypy.types import Type
+   |
+
+mbodied/types/ndarray.py:29:1: E402 Module level import not at top of file
+   |
+27 | from mypy.nodes import TypeInfo
+28 | from mypy.plugin import AnalyzeTypeContext, Plugin
+29 | from mypy.types import Type
+   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^ E402
+   |
+
+mbodied/types/ndarray.py:34:9: ANN201 Missing return type annotation for public function `get_type_analyze_hook`
+   |
+32 | # The hook that processes NumpyArray type annotations
+33 | class NumpyArrayPlugin(Plugin):
+34 |     def get_type_analyze_hook(self, fullname: str):
+   |         ^^^^^^^^^^^^^^^^^^^^^ ANN201
+35 |         if fullname == '__main__.NumpyArray':  # Replace with the actual path to NumpyArray
+36 |             return numpyarray_hook
+   |
+   = help: Add return type annotation
+
+mbodied/types/ndarray.py:54:5: ANN201 Missing return type annotation for public function `plugin`
+   |
+53 | # Register the plugin
+54 | def plugin(version: str):
+   |     ^^^^^^ ANN201
+55 |     return NumpyArrayPlugin
+   |
+   = help: Add return type annotation
+
+mbodied/types/ndarray.py:54:12: ARG001 Unused function argument: `version`
+   |
+53 | # Register the plugin
+54 | def plugin(version: str):
+   |            ^^^^^^^ ARG001
+55 |     return NumpyArrayPlugin
+   |
+
+mbodied/types/sample.py:67:121: E501 Line too long (218 > 120)
+   |
+65 |         [1, 2, 3, 4, 5]
+66 |         >>> schema = sample.schema()
+67 |         {'type': 'object', 'properties': {'x': {'type': 'number'}, 'y': {'type': 'number'}, 'z': {'type': 'object', 'properties': {'a': {'type': 'number'}, 'b': {'type': 'number'}}}, 'extra_field': {'type': 'number'}}}
+   |                                                                                                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ E501
+68 |         >>> unflattened_sample = Sample.unflatten(flat_list, schema)
+69 |         >>> print(unflattened_sample)
+   |
+
+mbodied/types/sample.py:167:41: F821 Undefined name `torch`
+    |
+165 |         output_type: Flattenable = "dict",
+166 |         non_numerical: Literal["ignore", "forbid", "allow"] = "allow",
+167 |     ) -> Dict[str, Any] | np.ndarray | "torch.Tensor" | List:
+    |                                         ^^^^^ F821
+168 |         accumulator = {} if output_type == "dict" else []
+    |
+
+mbodied/types/sample.py:329:20: F821 Undefined name `to_features`
+    |
+327 |             return Dataset.from_dict(self.dict())
+328 |         if container == "features":
+329 |             return to_features(self.dict())
+    |                    ^^^^^^^^^^^ F821
+330 |         raise ValueError(f"Unsupported container type: {container}")
+    |
+
+mbodied/types/sample.py:536:121: E501 Line too long (122 > 120)
+    |
+535 |     def space(self) -> spaces.Dict:
+536 |         """Return the corresponding Gym space for the Sample instance based on its instance attributes. Omits None values.
+    |                                                                                                                         ^^ E501
+537 | 
+538 |         Override this method in subclasses to customize the space generation.
+    |
+
+Found 79 errors.
