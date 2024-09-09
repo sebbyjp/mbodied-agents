@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from typing import Literal, TYPE_CHECKING
+from typing import Literal, TYPE_CHECKING, Optional
 
 from mbodied.agents.backends.backend import Backend
 from mbodied.agents.backends.serializer import Serializer
@@ -44,9 +44,9 @@ class Vision2SeqBackend(Backend):
     def __init__(
         self,
         model_id: str = "openvla/openvla-7b",
-        attn_implementation: Literal["flash_attention_2", "eager"] | None = None,
-        torch_dtype: "torch.dtype" | None = None,
-        device: str | None = None,
+        attn_implementation: Optional[Literal["flash_attention_2", "eager"]] = None,
+        torch_dtype: Optional["torch.dtype"] = None,
+        device: Optional[str] = None,
         **kwargs,
     ) -> None:
         torch = smart_import("torch", mode="lazy")
@@ -67,16 +67,6 @@ class Vision2SeqBackend(Backend):
             trust_remote_code=True,
             **kwargs,
         ).to(self.device)
-        # Load Processor & VLA
-        self.processor = AutoProcessor.from_pretrained(model_id, trust_remote_code=True)
-        self.model = AutoModelForVision2Seq.from_pretrained(
-            model_id,
-            attn_implementation=attn_implementation,
-            torch_dtype=self.torch_dtype,
-            low_cpu_mem_usage=torch.cuda.is_available(),
-            trust_remote_code=True,
-            **kwargs,
-        ).to(device)
 
     def predict(self, instruction: str, image: Image, unnorm_key: str = "bridge_orig") -> str:
         prompt = f"In: What action should the robot take to {instruction}?\nOut:"
