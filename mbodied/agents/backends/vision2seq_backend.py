@@ -12,14 +12,16 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from typing import Literal
+from typing import Literal, TYPE_CHECKING
 
 from mbodied.agents.backends.backend import Backend
 from mbodied.agents.backends.serializer import Serializer
 from mbodied.types.sense.vision import Image
 from mbodied.utils.import_utils import smart_import
 
-torch = smart_import("torch", mode="lazy")
+if TYPE_CHECKING:
+    import torch
+    from transformers import AutoModelForVision2Seq, AutoProcessor
 
 
 class Vision2SeqBackend(Serializer):
@@ -39,24 +41,32 @@ class Vision2SeqBackend(Backend):
         model (AutoModelForVision2Seq): The model for the OpenVLA backend.
     """
 
-    DEFAULT_DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
-    ATTN_IMPLEMENTATION = "flash_attention_2" if torch.cuda.is_available() else "eager"
-    DTYPE = torch.bfloat16 if torch.cuda.is_available() else torch.float16
-
     def __init__(
         self,
         model_id: str = "openvla/openvla-7b",
-        attn_implementation: Literal["flash_attention_2", "eager"] = ATTN_IMPLEMENTATION,
-        torch_dtype: torch.dtype = DTYPE,
-        device: torch.device = DEFAULT_DEVICE,
+        attn_implementation: Literal["flash_attention_2", "eager"] | None = None,
+        torch_dtype: "torch.dtype" | None = None,
+        device: str | None = None,
         **kwargs,
     ) -> None:
-        smart_import("transformers")
-        from transformers import AutoModelForVision2Seq, AutoProcessor
+        torch = smart_import("torch", mode="lazy")
+        transformers = smart_import("transformers", mode="lazy")
 
         self.model_id = model_id
-        self.device = device
-        self.torch_dtype = torch_dtype
+        self.device = device or ("cuda" if torch.cuda.is_available() else "cpu")
+        self.torch_dtype = torch_dtype or (torch.bfloat16 if torch.cuda.is_available() else torch.float16)
+        self.attn_implementation = attn_implementation or ("flash_attention_2" if torch.cuda.is_available() else "eager")
+
+        # Load Processor & VLA
+        self.processor = transformers.AutoProcessor.from_pretrained(model_id, trust_remote_code=True)
+        self.model = transformers.AutoModelForVision2Seq.from_pretrained(
+            model_id,
+            attn_implementation=self.attn_implementation,
+            torch_dtype=self.torch_dtype,
+            low_cpu_mem_usage=torch.cuda.is_available(),
+            trust_remote_code=True,
+            **kwargs,
+        ).to(self.device)
         # Load Processor & VLA
         self.processor = AutoProcessor.from_pretrained(model_id, trust_remote_code=True)
         self.model = AutoModelForVision2Seq.from_pretrained(
