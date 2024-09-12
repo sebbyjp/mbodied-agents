@@ -90,7 +90,12 @@ class Image(Sample):
 
     model_config: ConfigDict = ConfigDict(arbitrary_types_allowed=True, extras="forbid", validate_assignment=False)
 
-    array: NumpyArray
+    array: NumpyArray[224, 224, 3] | None = Field(
+        None,
+        repr=False,
+        exclude=True,
+        description="The image represented as a NumPy array.",
+    )
     size: tuple[int, int]
 
     pil: InstanceOf[PILImage] | None = Field(
@@ -116,7 +121,7 @@ class Image(Sample):
         url: str | None = None,
         path: str | None = None,
         base64: str | None = None,
-        array: np.ndarray | None = None,
+        array: NumpyArray[224,224,3] | None = None,
         pil: PILImage | None = None,
         encoding: str | None = "jpeg",
         size: Tuple | None = None,
@@ -461,3 +466,6 @@ class Image(Sample):
     def infer_features_dict(self) -> Features:
         """Infer features of the image."""
         return HFImage()
+
+
+im = Image()

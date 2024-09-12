@@ -237,3 +237,6 @@ convention = "google"
 [tool.ruff.lint.per-file-ignores]
 "**/{tests,docs}/*" = ["ALL"]
 "**__init__.py" = ["F401"]
+
+[tool.mypy]
+plugins = ["mbodied/types/ndarray.py"]

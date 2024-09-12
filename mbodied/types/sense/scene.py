@@ -51,7 +51,7 @@ class SceneObject(Sample):
     bbox_3d: BBox3D | None = None
     pose: Pose | None = None
     pixel_coords: PixelCoords | None = None
-    mask: NumpyArray | None = None
+    mask: NumpyArray[2, 2] | None = None
 
 
 class Scene(Sample):
@@ -68,3 +68,6 @@ class Scene(Sample):
     depth: Image | None = None
     annotated: Image | None = None
     objects: List[SceneObject] = Field(default_factory=list, description="List of scene objects")
+
+
+SceneObject()
