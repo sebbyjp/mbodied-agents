@@ -3,3 +3,5 @@ mypy
 mrender==0.0.14
 eclipse-zenoh
 imutils
+more-itertools==10.5.0
+aioitertools

@@ -21,21 +21,23 @@ classifiers = [
 ]
 
 dependencies = [
-  "anthropic",
-  "art",
-  "backoff",
-  "click",
-  "datasets",
-  "gymnasium",
-  "h5py",
-  "jsonref",
-  "numpy==1.26.4",
-  "openai",
-  "pillow",
-  "pydantic",
-  "pydantic_numpy==5.0.2",
-  "gradio",
-  "gradio_client",
+    'aioitertools',
+    'anthropic',
+    'art',
+    'backoff',
+    'click',
+    'datasets',
+    'gradio',
+    'gradio_client',
+    'gymnasium',
+    'h5py',
+    'jsonref',
+    'more-itertools==10.5.0',
+    'numpy==1.26.4',
+    'openai',
+    'pillow',
+    'pydantic',
+    'pydantic_numpy==5.0.2',
 ]
 [project.optional-dependencies]
 extras = ["xarm-python-sdk", "opencv-python", "torch", "transformers"]

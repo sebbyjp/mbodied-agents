@@ -63,3 +63,20 @@ class Message(Sample):
             content = [content]
         data["content"] = content
         super().__init__(**data)
+
+class Completion(Sample):
+    """Completion representing a prompt, completion, and context."""
+
+    prompt: Message = Field(default_factory=Message)
+    completion: Message | None = None
+    context: list[Message] | None = None
+
+    def __init__(
+        self,
+        prompt: Message,
+        *,
+        completion: Message | None = None,
+        context: list[Message] | None = None,
+    ):
+        data = {"prompt": prompt, "completion": completion, "context": context}
+        super().__init__(**data)

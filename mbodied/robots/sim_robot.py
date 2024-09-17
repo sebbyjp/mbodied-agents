@@ -11,8 +11,8 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-import time
 from pathlib import Path
+from time import sleep, time
 from typing import Generic, TypeVar
 
 from mbodied.robots import Robot
@@ -20,20 +20,19 @@ from mbodied.types.motion.control import HandControl
 from mbodied.types.sample import Sample
 from mbodied.types.sense.vision import Image
 
-ObsT, StaT, ActT, SupT = TypeVar("ObsT", bound=Sample), TypeVar("StateT", bound=Sample), TypeVar("ActionT", bound=Sample), TypeVar("SupT")
+ObsT, StaT, ActT, SupervisionT = (
+    TypeVar("ObsT", bound=Sample),
+    TypeVar("StateT", bound=Sample),
+    TypeVar("ActionT", bound=Sample),
+    TypeVar("SupervisionT"),
+)
 
-class MockRobot(Robot, Generic[ObsT, StaT, ActT, SupT]):
-    """A simulated robot interface for testing and validating purposes.
 
-    This class simulates the interface between the robot arm and the control system.
-    do() simulates the execution of HandControl motions that got executed in execution_time.
+class Robot(Robot, Generic[ObsT, StaT, ActT, SupervisionT]):
 
-    Attributes:
-        home_state: The default state of the robot arm.
-        current_state: The current state of the robot arm.
     """
 
-    def __init__(self, execution_time: float = 1.0):
+    def __init__(self, frequency_hz: int = 5):
         """Initializes the SimRobot and sets up the robot arm.
 
         Args:
@@ -45,34 +44,36 @@ class MockRobot(Robot, Generic[ObsT, StaT, ActT, SupT]):
         self.home_pos = [0, 0, 0, 0, 0, 0, 0]
         self.current_pos = self.home_pos
 
-    # def step(self, action: ActT | list[ActT], state: StaT | None = None,  duration: float | None = None) -> StaT:
-    #     """Executes an action or sequence of actions and returns the new state.
+    def step(self, action: ActT | list[ActT], state: StateT | None = None, frequency_hz: int | None = None) -> StaT:
+        """Executes an action or sequence of actions and returns the new state.
 
-    #     Ensures uniform execution time for each action over duration if specified.
+        Ensures uniform execution time for each action over duration if specified.
 
-    #     Args:
-    #         motion: The motion to execute, commonly referred to as an action.
-    #         num_steps: The number of steps to divide the motion into.
-    #     """
-    #     if not isinstance(action, Sample | list[Sample]):
-    #         raise TypeError("Action must be a Sample or a list of Samples to determine the motion.")
-    #     tic = time.time()
-    #     if isinstance(action, list):
-    #         for act in action:
-    #             while time.time() - tic < self.execution_time / num_steps:
-    #                 pass
+        Args:
+            motion: The motion to execute, commonly referred to as an action.
+            num_steps: The number of steps to divide the motion into.
+        """
+        if not isinstance(action, Sample | list[Sample]):
+            raise TypeError("Action must be a Sample or a list of Samples to determine the motion.")
+        tic = time.time()
+        duration = 
+        num_steps = duration * frequency_hz if duration else 1
+        if isinstance(action, list):
+            for act in action:
+                while time.time() - tic < self.execution_time / num_steps:
+                    pass
 
-    #             self.state: Sample = self.do(act / num_steps)
+                self.state: Sample = self.do(act / num_steps)
 
-    #         # Number of steps to divide the motion into
-    #         step_motion = [value / num_steps for value in action.flatten()]
-    #         for _ in range(num_steps):
-    #             self.current_pos = [round(x + y, 5) for x, y in zip(self.current_pos, step_motion, strict=False)]
-    #             time.sleep(sleep_duration)
+            # Number of steps to divide the motion into
+            step_motion = [value / num_steps for value in action.flatten()]
+            for _ in range(num_steps):
+                self.current_pos = [round(x + y, 5) for x, y in zip(self.current_pos, step_motion, strict=False)]
+                time.sleep(sleep_duration)
 
-    #         print("New position:", self.current_pos)  # noqa: T201
+            print("New position:", self.current_pos)  # noqa: T201
 
-    #     return self.current_pos
+        return self.current_pos
 
     def capture(self, **_) -> ObsT:
         """Captures an image."""
@@ -115,7 +116,6 @@ class MockImageHandRobot(MockRobot[Image, HandControl, HandControl, None]):
         """Captures an image."""
         resource = Path("resources") / "xarm.jpeg"
         return Image(resource, size=(224, 224))
-
 
     def prepare_action(self, old_pose: HandControl, new_pose: HandControl) -> HandControl:
         """Calculates the action between two poses."""
