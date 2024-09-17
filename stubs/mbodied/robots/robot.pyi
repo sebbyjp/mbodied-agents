@@ -1,7 +1,7 @@
 import abc
 from _typeshed import Incomplete
 from abc import ABC, abstractmethod
-from mbodied.robots.robot_recording import RobotRecorder as RobotRecorder
+from mbodied.robots.recordable import RobotRecorder as RobotRecorder
 from mbodied.types.sample import Sample as Sample
 
 class Robot(ABC, metaclass=abc.ABCMeta):

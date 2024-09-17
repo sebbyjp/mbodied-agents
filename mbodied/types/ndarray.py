@@ -15,18 +15,16 @@
 import pydantic_numpy.typing as pnd
 
 """Pydantic Numpy Array for serialization/deserialization."""
+from mypy.nodes import TypeInfo
+from mypy.plugin import AnalyzeTypeContext, Plugin
+from mypy.types import Type, TypeOfAny
 
-NumpyArray = pnd.NpNDArray
-NumpyArrayFp32 = pnd.NpNDArrayFp32
 
 from typing import Generic, TypeVar, Tuple
 
 # Define a type variable for the data type of the array
 T = TypeVar('T')
 
-from mypy.plugin import Plugin, AnalyzeTypeContext
-from mypy.types import Type, TypeOfAny
-from mypy.nodes import ARG_POS, Argument, CallExpr, TypeInfo, Var
 
 # The hook that processes NumpyArray type annotations
 class NumpyArrayPlugin(Plugin):

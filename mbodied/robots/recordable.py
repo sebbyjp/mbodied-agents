@@ -17,9 +17,6 @@ class Recorder:
 
     def __init__(
         self,
-        get_state: Callable,
-        get_observation: Callable,
-        prepare_action: Callable,
         frequency_hz: int = 5,
         recorder_kwargs: dict = None,
         on_static: Literal["record", "omit"] = "omit",
@@ -50,10 +47,6 @@ class Recorder:
         self.frequency_hz = frequency_hz
         self.record_on_static = on_static == "record"
         self.recording_queue = Queue()
-
-        self.get_state = get_state
-        self.get_observation = get_observation
-        self.prepare_action = prepare_action
 
         self._worker_thread = threading.Thread(target=self._process_queue, daemon=True)
         self._worker_thread.start()
