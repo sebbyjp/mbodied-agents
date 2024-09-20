@@ -1,4 +1,5 @@
 from _typeshed import Incomplete
+
 from mbodied.hardware.interface import HardwareInterface as HardwareInterface
 from mbodied.types.motion.control import HandControl as HandControl
 from mbodied.types.sense.vision import Image as Image

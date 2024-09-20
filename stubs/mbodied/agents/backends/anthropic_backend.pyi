@@ -1,10 +1,12 @@
+from typing import Any
+
 import anthropic
 from _typeshed import Incomplete
+
 from mbodied.agents.backends.openai_backend import OpenAIBackendMixin as OpenAIBackendMixin
 from mbodied.agents.backends.serializer import Serializer as Serializer
 from mbodied.types.message import Message as Message
 from mbodied.types.sense.vision import Image as Image
-from typing import Any
 
 class AnthropicSerializer(Serializer):
     """Serializer for Anthropic-specific data formats."""

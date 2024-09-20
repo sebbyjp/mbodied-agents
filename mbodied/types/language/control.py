@@ -37,9 +37,9 @@ def create_enum_from_list(name, string_list) -> Enum:
     return Enum(value=name, names=[(item.replace(" ", "_").upper(), item) for item in string_list])
 
 
-def language_control_to_list(enum: Enum) -> list[str]:
+def language_control_to_list(enum_type: type[Enum]) -> list[str]:
     """Convert an Enum type to a list of its values. So it's easier to pass i.e. as prompt."""
-    return [command.value for command in enum]
+    return [command.value for command in enum_type]  
 
 
 def get_command_from_string(command_str) -> Enum:

@@ -1,5 +1,6 @@
 import abc
 from abc import abstractmethod
+
 from mbodied.agents import Agent as Agent
 from mbodied.types.motion import Motion as Motion
 
