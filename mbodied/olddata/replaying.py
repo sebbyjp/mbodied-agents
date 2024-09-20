@@ -27,8 +27,7 @@ from PIL import Image as PILImage
 
 from mbodied.types.sample import Sample
 from mbodied.types.sense.vision import Image as MbImage
-
-
+from mbodied.data.features import to_features as infer_features
 class Replayer:
     """Replays datasets recorded by Recorder.
 

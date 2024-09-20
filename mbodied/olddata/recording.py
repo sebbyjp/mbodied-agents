@@ -28,7 +28,6 @@ from h5py import string_dtype
 from mbodied.data.sample import Sample
 from mbodied.types.sense.vision import Image
 
-
 def add_space_metadata(space, group) -> None:
     group.attrs["space_type"] = space.__class__.__name__
 

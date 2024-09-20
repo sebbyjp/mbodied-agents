@@ -1,13 +1,13 @@
 import threading
 import time
 from queue import Queue
-from typing import Callable, Literal, Self
+from typing import Any, Callable, Literal
+class RobotRecorder:
+    """A class for recording robot observation and actions.
 
-from mbodied.data.recording import Recorder
-
-
-class Recorder:
-    """A class for non-blocking recording robot observation at a specified frequency.
+    Recording at a specified frequency on the observation and action of a robot. It leverages a queue and a worker
+    thread to handle the recording asynchronously, ensuring that the main operations of the
+    robot are not blocked.
 
     Robot class must pass in the `get_state`, `get_observation`, `prepare_action` methods.
     - `get_state()` gets the current state/pose of the robot.

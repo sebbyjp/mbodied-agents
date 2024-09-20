@@ -28,7 +28,7 @@ from pydantic.fields import FieldInfo
 from pydantic_core import from_json
 from typing_extensions import Annotated
 
-from mbodied.utils.import_utils import smart_import
+from mbodied.data import features
 
 Flattenable = Annotated[Literal["dict", "np", "pt", "list"], "Numpy, PyTorch, list, or dict"]
 
