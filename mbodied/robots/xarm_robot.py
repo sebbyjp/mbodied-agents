@@ -12,11 +12,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import logging
 import math
 from typing import Any
 
 from gymnasium import spaces
+import logging
 
 try:
     from xarm.wrapper import XArmAPI

@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from typing import Any, Literal
+from typing_extensions import Any, Literal, Generic, TypeVar, Callable
 
 from pydantic import Field
 
@@ -21,6 +21,56 @@ from mbodied.types.sense.vision import Image
 
 Role = Literal["user", "assistant", "system"]
 
+
+class Parameter(Sample):
+    name: str
+    type: type
+    resolved: bool = False
+    """Whether or not the parameter has been resolved to a concrete value."""
+
+
+class Function(Sample):
+    name: str = ""
+    arguments: dict[str, Parameter] = {}
+
+P = TypeVar("P", bound=Parameter)
+class ToolCall(Sample, Generic[P]):
+    function: Function
+    # Can be an abstract parameter or a concrete value
+    arguments: dict[str, P] = {}
+
+
+    def resolved(self) -> bool:
+        return all(v.resolved for v in self.args.values())
+
+
+PT = TypeVar("PT", bound=Parameter | ToolCall)
+
+
+class Resolved(Generic[PT]):
+    def __class__getitem__(cls, p: PT) -> PT:
+        # unwrap attributes of class until one of them is resolved
+        unresolved = p
+        while not hasattr(unresolved, "resolved"):
+            for attr, value in unresolved.items():
+                if attr == "resolved":
+                    break
+        if attr == "resolved" and not isinstance(value, Callable):
+            setattr(unresolved, "resolved", True)
+        return unresolved
+
+class TaskCompletion(Sample):
+    tool_calls: list[Resolved[ToolCall]] = Field(default_factory=list)
+    image: Image | None = None
+    text: str = ""
+    code: str = ""
+
+
+class Choice(Sample):
+    tool_calls: list[ToolCall] = Field(default_factory=list)
+    image: Image | None = None
+    text: str = ""
+    code: str = ""
 
 class Message(Sample):
     """Single completion sample space.
@@ -33,7 +83,7 @@ class Message(Sample):
     """
 
     role: Role = "user"
-    content: Any | None = Field(default_factory=list)
+    content: Any | list[Choice] | list = Field(default_factory=list)
 
     @classmethod
     def supports(cls, arg: Any) -> bool:

@@ -50,6 +50,7 @@ Examples:
 import asyncio
 import logging
 import os
+import inspect
 from dataclasses import dataclass
 from typing import AsyncGenerator, Generator, List, Literal, TypeAlias
 
@@ -58,10 +59,13 @@ from pydantic import AnyUrl, DirectoryPath, FilePath, NewPath
 
 from mbodied.agents import Agent
 from mbodied.agents.backends import OpenAIBackend
+from mbodied.agents.backends.gradio_backend import GradioParams
+from mbodied.data.recording import RecorderParams
+from mbodied.agents.backends.openai_backend import ChatCompletionParams, ChatCompletion, ChatCompletionChunk
 from mbodied.types.message import Message
 from mbodied.types.sample import Sample
 from mbodied.types.sense.vision import Image
-
+from more_itertools import always_iterable, before_and_after
 SupportsOpenAI: TypeAlias = OpenAIBackend
 
 
@@ -113,30 +117,6 @@ class LanguageAgent(Agent):
 
         Automatically act and record to dataset:
             >>> cognitive_agent.act_and_record("your instruction", image)
-
-        Stream the response:
-            >>> for chunk in cognitive_agent.act_and_stream("your instruction", image):
-            ...     print(chunk)
-
-    To use vLLM:
-    ```python
-    agent = LanguageAgent(
-        context=context,
-        model_src="openai",
-        model_kwargs={"api_key": "EMPTY", "base_url": "http://1.2.3.4:1234/v1"},
-    )
-    response = agent.act("Hello, how are you?", model="mistralai/Mistral-7B-Instruct-v0.3")
-    ```
-
-    To use ollama:
-    ```python
-    agent = LanguageAgent(
-        context="You are a robot agent.",
-        model_src="ollama",
-        model_kwargs={"endpoint": "http://localhost:11434/api/chat"},
-    )
-    response = agent.act("Hello, how are you?", model="llama3.1")
-    ```
     """
 
     _art_printed = False
@@ -150,9 +130,8 @@ class LanguageAgent(Agent):
         | NewPath = "openai",
         context: list | Image | str | Message = None,
         api_key: str | None = os.getenv("OPENAI_API_KEY"),
-        model_kwargs: dict = None,
-        recorder: Literal["default", "omit"] | str = "omit",
-        recorder_kwargs: dict = None,
+        recorder_kwargs: RecorderParams = None,
+        **model_kwargs: ChatCompletionParams | GradioParams | dict,
     ) -> None:
         """Agent with memory,  asynchronous remote acting, and automatic dataset recording.
 
@@ -175,7 +154,7 @@ class LanguageAgent(Agent):
                     If a string is provided, it will be interpreted as a user message. Defaults to None.
             api_key (str, optional): The API key to use for the remote actor (if applicable).
                  Defaults to the value of the OPENAI_API_KEY environment variable.
-            model_kwargs (dict, optional): Additional keyword arguments to pass to the model source. Can be overidden at act time.
+            model_kwargs (dict, optional): Additional keyword arguments to pass to the model source such as default model parameters.
                 See the documentation of the specific backend for more details. Defaults to None.
             recorder (Union[str, Literal["default", "omit"]], optional):
                 The recorder configuration or name or action. Defaults to "omit".
@@ -188,15 +167,13 @@ class LanguageAgent(Agent):
             LanguageAgent._art_printed = True
         self.reminders: List[Reminder] = []
         print(f"Initializing language agent for robot using : {model_src}")  # noqa: T201
-
         super().__init__(
-            recorder=recorder,
-            recorder_kwargs=recorder_kwargs,
             model_src=model_src,
-            model_kwargs=model_kwargs,
             api_key=api_key,
+            recorder_kwargs=recorder_kwargs,
+            **model_kwargs,
         )
-
+        self.default_model_kwargs = {k: v for k, v in model_kwargs.items() if k in inspect.signature(self.actor.predict).parameters}
         self.context = make_context_list(context)
 
     def forget_last(self) -> Message:
@@ -261,7 +238,7 @@ class LanguageAgent(Agent):
         model=None,
         max_retries: int = 1,
         record: bool = False,
-        **kwargs,
+        **model_kwargs: ChatCompletionParams | GradioParams,
     ) -> Sample:
         """Responds to the given instruction, image, and context and parses the response into a Sample object.
 
@@ -277,13 +254,12 @@ class LanguageAgent(Agent):
             **kwargs: Additional keyword arguments.
         """
         original_instruction = instruction
-        kwargs = {**kwargs, "model": model}
-        model = kwargs.pop("model", None) or self.actor.DEFAULT_MODEL
+        kwargs = {**self.default_model_kwargs, **model_kwargs}
         for attempt in range(max_retries + 1):
             if record:
-                response = self.act_and_record(instruction, image, context, model=model, **kwargs)
+                response = self.act_and_record(instruction, image, context, model, **kwargs)
             else:
-                response = self.act(instruction, image, context, model=model, **kwargs)
+                response = self.act(instruction, image, context, model, **kwargs)
             response = response[response.find("{") : response.rfind("}") + 1]
             try:
                 return parse_target.model_validate_json(response)
@@ -304,7 +280,7 @@ class LanguageAgent(Agent):
         context: list | str | Image | Message = None,
         model=None,
         max_retries: int = 1,
-        **kwargs,
+        **model_kwargs: ChatCompletionParams | GradioParams,
     ) -> Sample:
         """Responds to the given instruction, image, and context asynchronously and parses the response into a Sample object."""
         return await asyncio.to_thread(
@@ -315,7 +291,7 @@ class LanguageAgent(Agent):
             context,
             model=model,
             max_retries=max_retries,
-            **kwargs,
+            **model_kwargs,
         )
 
     def prepare_inputs(
@@ -345,11 +321,42 @@ class LanguageAgent(Agent):
 
         return message, memory
 
-    def postprocess_response(self, response: str, message: Message, memory: list[Message], **kwargs) -> str:
+    def on_completion_finish(self, response: ChatCompletion, message: Message, memory: list[Message], **kwargs: ChatCompletionParams) -> str:
         """Postprocess the response."""
-        self.context.append(message)
-        self.context.append(Message(role="assistant", content=response))
-        return response
+
+       
+        if "tools" in kwargs:
+            content = response.choices[0].message if kwargs.get("n", 1) == 1 else response.choices
+            content = content.model_dump() if hasattr(content, "model_dump") else [c.model_dump() for c in content]
+        else:
+            content = response.choices[0].message.content
+        self.context.extend([message, Message(role="assistant", content=content)])
+        return content
+
+
+    def on_stream_yield(self, response_chunk: ChatCompletionChunk, message: Message, memory: list[Message], **kwargs: ChatCompletionParams) -> str:
+        """Postprocess the response."""
+        self.streaming_response = Message(role="assistant") if not hasattr(self, "streaming_response") else self.streaming_response
+        if kwargs.get("n", 1) == 1:
+            # Just build up the streaming response
+            if "tools" not in kwargs:
+                self.streaming_response.content.append(response_chunk.choices[0].delta.tool_calls)
+                before_and_after(always_iterable(self.streaming_response.content), lambda x: x is not None)
+            else:
+                self.streaming_response.content += response_chunk.choices[0].delta.content
+
+        else:
+            if "tools" in kwargs:
+                # Multiple tools and multiple choices so append the new list of tools and choices
+                self.streaming_response.content.append([c.delta.tool_calls for c in response_chunk.choices])
+            self.streaming_response.content.append([c.delta.content for c in response_chunk.choices])
+
+
+        yield self.streaming_response.content
+        return self.on_completion_finish(response_chunk, message, memory, **kwargs)
+
+
+
 
     def act(
         self,
@@ -357,8 +364,8 @@ class LanguageAgent(Agent):
         image: Image = None,
         context: list | str | Image | Message = None,
         model=None,
-        **kwargs,
-    ) -> str:
+        **model_kwargs: ChatCompletionParams | GradioParams,
+    ) -> str | ChatCompletion:
         """Responds to the given instruction, image, and context.
 
         Uses the given instruction and image to perform an action.
@@ -381,35 +388,35 @@ class LanguageAgent(Agent):
             "['Move left arm to the object', 'Move right arm to the object']"
         """
         message, memory = self.prepare_inputs(instruction, image, context)
-        kwargs = {**kwargs, "model": model}
-        model = kwargs.pop("model", None) or self.actor.DEFAULT_MODEL
-        response = self.actor.predict(message, context=memory, model=model, **kwargs)
-        return self.postprocess_response(response, message, memory, **kwargs)
+        model = model or self.actor.DEFAULT_MODEL
+        response = self.actor.predict(message, memory, model=model, **model_kwargs)
+        return self.on_completion_finish(response, message, memory, **model_kwargs)
 
     def act_and_stream(
-        self, instruction: str, image: Image = None, context: list | str | Image | Message = None, model=None, **kwargs
-    ) -> Generator[str, None, str]:
+        self, instruction: str, image: Image = None, context: list | str | Image | Message = None, model=None,
+        **model_kwargs: ChatCompletionParams | GradioParams | dict,
+    ) -> Generator[str | ChatCompletionChunk, None, str]:
         """Responds to the given instruction, image, and context and streams the response."""
+
+        model_kwargs = {**self.default_model_kwargs, **model_kwargs}
         message, memory = self.prepare_inputs(instruction, image, context)
-        kwargs = {**kwargs, "model": model}
-        model = kwargs.pop("model", None) or self.actor.DEFAULT_MODEL
-        response = ""
-        for chunk in self.actor.stream(message, memory, model=model, **kwargs):
-            response += chunk
-            yield chunk
-        return self.postprocess_response(response, message, memory, **kwargs)
+        model = model or model_kwargs.get("model", self.actor.DEFAULT_MODEL)
+        model_kwargs.update({"model": model})
+
+        yield from(map(self.on_stream_yield, self.actor.stream(message, memory, **model_kwargs)))
+
 
     async def async_act_and_stream(
-        self, instruction: str, image: Image = None, context: list | str | Image | Message = None, model=None, **kwargs
+        self, instruction: str, image: Image = None, context: list | str | Image | Message = None, model=None, **model_kwargs: ChatCompletionParams | GradioParams | dict
     ) -> AsyncGenerator[str, None]:
+        """Responds to the given instruction, image, and context asynchronously and streams the response."""
+        model = model or model_kwargs.get("model", self.actor.DEFAULT_MODEL)
         message, memory = self.prepare_inputs(instruction, image, context)
-        kwargs = {**kwargs, "model": model}
-        model = kwargs.pop("model", None) or self.actor.DEFAULT_MODEL
-        response = ""
-        async for chunk in self.actor.astream(message, context=memory, model=model, **kwargs):
-            response += chunk
+        model = model or self.actor.DEFAULT_MODEL
+        model_kwargs.update({"model": model})
+        async for chunk in map(self.on_stream_yield,self.actor.astream(message, memory, **model_kwargs)):
             yield chunk
-        return
+        
 
 
 def main():

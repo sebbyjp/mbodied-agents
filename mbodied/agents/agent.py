@@ -17,12 +17,15 @@ import asyncio
 import logging
 from inspect import signature
 from pathlib import Path
-from typing import Literal
-
+from types import FunctionType
+from typing import Callable
+from functools import wraps
 from mbodied.agents.backends import AnthropicBackend, GradioBackend, HttpxBackend, OllamaBackend, OpenAIBackend
-from mbodied.data.recording import Recorder
+from mbodied.agents.backends.gradio_backend import GradioParams, Job
+from mbodied.agents.backends.openai_backend import OpenAIBackend, ChatCompletionParams, ChatCompletionChunk, ChatCompletion
+from mbodied.data.recording import Recorder, RecorderParams
 from mbodied.types.sample import Sample
-
+import gymnasium as gym
 Backend = AnthropicBackend | GradioBackend | OpenAIBackend | HttpxBackend | OllamaBackend
 
 
@@ -47,7 +50,11 @@ class Agent:
     }
 
     @staticmethod
-    def init_backend(model_src: str, model_kwargs: dict, api_key: str) -> type:
+    def init_backend(
+        model_src: str,
+        api_key: str,
+        **default_model_kwargs: ChatCompletionParams,
+    ) -> type:
         """Initialize the backend based on the model source.
 
         Args:
@@ -61,13 +68,15 @@ class Agent:
         if model_src in Agent.ACTOR_MAP:
             if model_src == "gradio":
                 # Gradio doesn't take api_key.
-                return Agent.ACTOR_MAP[model_src](**model_kwargs)
+                return Agent.ACTOR_MAP[model_src](**default_model_kwargs)
             else:
-                return Agent.ACTOR_MAP[model_src](**model_kwargs, api_key=api_key)
-        return Agent.handle_default(model_src, model_kwargs)
+                return Agent.ACTOR_MAP[model_src](
+                    **default_model_kwargs, api_key=api_key
+                )
+        return Agent.handle_default(model_src, default_model_kwargs)
 
     @staticmethod
-    def handle_default(model_src: str, model_kwargs: dict) -> None:
+    def handle_default(model_src: str, **default_model_kwargs: ChatCompletionParams) -> None:
         """Default to gradio then httpx backend if the model source is not recognized.
 
         Args:
@@ -75,13 +84,13 @@ class Agent:
             model_kwargs: The additional arguments to pass to the model.
         """
         try:
-            return GradioBackend(endpoint=model_src, **model_kwargs)
+            return GradioBackend(endpoint=model_src, **default_model_kwargs)
         except Exception as e:
             logging.error(
                 f"Failed to initialize Gradio backend: {e}. Defaulting to Httpx backend. Ensure that the source is a valid http endpoint.",
             )
             try:
-                return HttpxBackend(endpoint=model_src, **model_kwargs)
+                return HttpxBackend(endpoint=model_src, **default_model_kwargs)
             except Exception as e:
                 logging.error(f"Failed to initialize Httpx backend: {e}.")
                 raise ValueError(
@@ -90,11 +99,11 @@ class Agent:
 
     def __init__(
         self,
-        recorder: Literal["omit", "auto"] | str = "omit",
-        recorder_kwargs=None,
         api_key: str = None,
         model_src=None,
-        model_kwargs=None,
+        *,
+        recorder_kwargs: RecorderParams | None = None,
+        **default_model_kwarg: GradioParams | ChatCompletionParams,
     ):
         """Initialize the agent, optionally setting up a recorder, remote actor, or loading a local model.
 
@@ -112,19 +121,65 @@ class Agent:
         if not isinstance(model_src, str):
             raise ValueError("Model source must be a string.")
 
-        self.recorder = None
-        recorder_kwargs = recorder_kwargs or {}
-        if recorder == "auto":
-            self.recorder = Recorder("base_agent", out_dir="outs", **recorder_kwargs)
-        elif recorder != "omit":
-            self.recorder = Recorder(recorder, out_dir="outs", **recorder_kwargs)
+        self.recorder_kwargs = recorder_kwargs or {}
+        model_kwargs = default_model_kwarg or {}
 
-        model_kwargs = model_kwargs or {}
         self.actor = None
         if isinstance(model_src, str) and Path(model_src[:120]).exists():
             self.load_model(model_src, **model_kwargs)
         else:
-            self.actor: Backend = self.init_backend(model_src, model_kwargs, api_key)
+            self.actor: Backend = self.init_backend(model_src, api_key, **model_kwargs)
+
+    @staticmethod
+    def recorded_action(
+        func: FunctionType, recorder_kwargs: RecorderParams | None = None
+    ) -> Sample:
+        """Peform action based on the observation and record the action, if applicable.
+
+        Args:
+            *args: Additional arguments to customize the action.
+            **kwargs: Additional arguments to customize the action.
+
+        Returns:
+            Sample: The action sample created by the agent.
+        """
+
+        def wrapper(self: Agent, *args, recorder_kwargs=recorder_kwargs, **kwargs):
+            action = self.act(*args, **kwargs)
+            recorder_kwargs = recorder_kwargs or {}
+            self.recorder = getattr(self, "recorder", Recorder(**recorder_kwargs))
+            observation = self.create_observation_from_args(
+                self.recorder.observation_space,
+                func,
+                args,
+                kwargs,
+            )
+            action = func(self, observation=observation, action=action)
+            self.recorder.record(observation=observation, action=action)
+            return action
+
+        return wrapper
+
+    @staticmethod
+    def create_observation_from_args(
+        observation_space: gym.Space, function: Callable, *args, **kwargs
+    ) -> dict:
+        """Helper method to create an observation from the arguments of a function."""
+        param_names = list(signature(function).parameters.keys())
+
+        # Create the observation from the arguments
+        params = kwargs.copy()
+        for arg, val in zip(param_names, args, strict=False):
+            params[arg] = val
+        if observation_space is not None:
+            observation = observation_space.sample()
+            return {k: v for k, v in params.items() if k in observation}
+
+        return {
+            k: v
+            for k, v in params.items()
+            if v is not None and k not in ["self", "kwargs"]
+        }
 
     def load_model(self, model: str) -> None:
         """Load a model from a file or path. Required if the model is a weights path.
@@ -152,26 +207,13 @@ class Agent:
         """
         return await asyncio.to_thread(self.act, *args, **kwargs)
 
-    def act_and_record(self, *args, **kwargs) -> Sample:
-        """Peform action based on the observation and record the action, if applicable.
-
-        Args:
-            *args: Additional arguments to customize the action.
-            **kwargs: Additional arguments to customize the action.
-
-        Returns:
-            Sample: The action sample created by the agent.
-        """
-        action = self.act(*args, **kwargs)
-        if self.recorder is not None:
-            observation = self.create_observation_from_args(
-                self.recorder.observation_space,
-                self.act_and_record,
-                args,
-                kwargs,
-            )
-            self.recorder.record(observation=observation, action=action)
-        return action
+    @wraps("Agent.act")
+    def act_and_record(
+        self, *args, recorder_kwargs: RecorderParams | None = None, **kwargs
+    ) -> Sample:
+        """Peform action based on the observation and record the action, if applicable."""
+        recorder_kwargs = recorder_kwargs or self.recorder_kwargs or {}
+        return self.recorded_action(self.act, recorder_kwargs)(*args, **kwargs)
 
     async def async_act_and_record(self, *args, **kwargs) -> Sample:
         """Act asynchronously based on the observation.
@@ -181,18 +223,3 @@ class Agent:
         For remote actors, this method should call actor.async_act() correctly to perform the actions.
         """
         return await asyncio.to_thread(self.act_and_record, *args, **kwargs)
-
-    @staticmethod
-    def create_observation_from_args(observation_space, function, args, kwargs) -> dict:
-        """Helper method to create an observation from the arguments of a function."""
-        param_names = list(signature(function).parameters.keys())
-
-        # Create the observation from the arguments
-        params = {**kwargs}
-        for arg, val in zip(param_names, args, strict=False):
-            params[arg] = val
-        if observation_space is not None:
-            observation = observation_space.sample()
-            return {k: v for k, v in params.items() if k in observation}
-
-        return {k: v for k, v in params.items() if v is not None and k not in ["self", "kwargs"]}
