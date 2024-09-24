@@ -67,10 +67,11 @@ class TaskCompletion(Sample):
 
 
 class Choice(Sample):
-    tool_calls: list[ToolCall] = Field(default_factory=list)
+    tool_calls: dict[str, ToolCall] | Any = Field(default_factory=dict)
     image: Image | None = None
     text: str = ""
     code: str = ""
+    
 
 class Message(Sample):
     """Single completion sample space.
@@ -81,9 +82,11 @@ class Message(Sample):
         role: The role of the message sender (user, assistant, or system).
         content: The content of the message, which can be of various types.
     """
-
     role: Role = "user"
     content: Any | list[Choice] | list = Field(default_factory=list)
+    choices: list[Choice] | None = None
+    """This will only be used if multiple responses are requested."""
+
 
     @classmethod
     def supports(cls, arg: Any) -> bool:
@@ -101,6 +104,7 @@ class Message(Sample):
         self,
         content: Any | None = None,
         role: Role = "user",
+        choices: list[Choice] | None = None,
     ):
         """Initializes a Message instance.
 
@@ -111,5 +115,9 @@ class Message(Sample):
         data = {"role": role}
         if content is not None and not isinstance(content, list):
             content = [content]
+        if choices is not None and not isinstance(choices, list):
+            choices = [choices]
+        if choices is not None:
+            data["choices"] = choices
         data["content"] = content
         super().__init__(**data)

@@ -144,6 +144,8 @@ class OpenAIBackend(Backend):
         """
         context = context or self.INITIAL_CONTEXT
         model = model or self.DEFAULT_MODEL
+        from rich.pretty import pprint 
+        pprint(message)
         serialized_messages = [self.serialized(msg).serialize() for msg in context + [message]]
 
         completion: ChatCompletion = self.client.chat.completions.create(
@@ -164,10 +166,11 @@ class OpenAIBackend(Backend):
             model: The model to be used for the completion.
             **kwargs: Additional keyword arguments.
         """
+        print(f"Streaming completion for message: {message}")
         model = model or self.DEFAULT_MODEL
         context = context or self.INITIAL_CONTEXT
         serialized_messages = [self.serialized(msg).serialize() for msg in context + [message]]
-        return self.client.chat.completions.create(
+        yield from self.client.chat.completions.create(
             messages=serialized_messages,
             model=model,
             temperature=0,

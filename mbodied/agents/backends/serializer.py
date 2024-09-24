@@ -99,6 +99,8 @@ class Serializer(Sample):
 
         """
         if isinstance(sample, Message):
+            if hasattr(sample, "choices") and sample.choices is None:
+                del sample.choices
             return self.serialize_msg(sample)
         if not isinstance(sample, Sample):
             sample = Sample(sample)
@@ -138,6 +140,8 @@ class Serializer(Sample):
             A dictionary representing the serialized Message.
 
         """
+        from rich.pretty import pprint
+        pprint(message)
         return {
             "role": message.role,
             "content": [self.serialize_sample(c) for c in message.content],

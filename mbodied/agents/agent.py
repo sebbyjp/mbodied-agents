@@ -22,7 +22,7 @@ from typing import Callable
 from functools import wraps
 from mbodied.agents.backends import AnthropicBackend, GradioBackend, HttpxBackend, OllamaBackend, OpenAIBackend
 from mbodied.agents.backends.gradio_backend import GradioParams, Job
-from mbodied.agents.backends.openai_backend import OpenAIBackend, ChatCompletionParams, ChatCompletionChunk, ChatCompletion
+from mbodied.agents.backends.openai_backend import OpenAIBackend, ChatCompletionParams
 from mbodied.data.recording import Recorder, RecorderParams
 from mbodied.types.sample import Sample
 import gymnasium as gym
@@ -73,7 +73,7 @@ class Agent:
                 return Agent.ACTOR_MAP[model_src](
                     **default_model_kwargs, api_key=api_key
                 )
-        return Agent.handle_default(model_src, default_model_kwargs)
+        return Agent.handle_default(model_src, **default_model_kwargs)
 
     @staticmethod
     def handle_default(model_src: str, **default_model_kwargs: ChatCompletionParams) -> None:

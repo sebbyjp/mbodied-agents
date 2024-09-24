@@ -73,7 +73,7 @@ class Sample(BaseModel):
 
     __doc__ = "A base model class for serializing, recording, and manipulating arbitray data."
 
-    model_config: ConfigDict = ConfigDict(
+    model_config = ConfigDict(
         use_enum_values=False,
         from_attributes=True,
         validate_assignment=False,

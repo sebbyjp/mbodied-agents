@@ -48,11 +48,12 @@ Examples:
 """
 
 import asyncio
+import json
 import logging
 import os
 import inspect
 from dataclasses import dataclass
-from typing import AsyncGenerator, Generator, List, Literal, TypeAlias
+from typing_extensions import AsyncGenerator, Generator, List, Literal, TypeAlias, Iterator
 
 from art import text2art
 from pydantic import AnyUrl, DirectoryPath, FilePath, NewPath
@@ -62,10 +63,10 @@ from mbodied.agents.backends import OpenAIBackend
 from mbodied.agents.backends.gradio_backend import GradioParams
 from mbodied.data.recording import RecorderParams
 from mbodied.agents.backends.openai_backend import ChatCompletionParams, ChatCompletion, ChatCompletionChunk
-from mbodied.types.message import Message
+from mbodied.types.message import Message, Choice, ToolCall, Function
 from mbodied.types.sample import Sample
 from mbodied.types.sense.vision import Image
-from more_itertools import always_iterable, before_and_after
+from more_itertools import always_iterable as alwaysiter
 SupportsOpenAI: TypeAlias = OpenAIBackend
 
 
@@ -160,11 +161,11 @@ class LanguageAgent(Agent):
                 The recorder configuration or name or action. Defaults to "omit".
             recorder_kwargs (dict, optional): Additional keyword arguments to pass to the recorder. Defaults to None.
         """
-        if not LanguageAgent._art_printed:
+        if not globals().get("LanguageAgent._art_printed", False):
             print("Welcome to")  # noqa: T201
             print(text2art("mbodi"))  # noqa: T201
             print("A platform for intelligent embodied agents.\n\n")  # noqa: T201
-            LanguageAgent._art_printed = True
+            globals()["LanguageAgent._art_printed"] = True # Don't print the art again
         self.reminders: List[Reminder] = []
         print(f"Initializing language agent for robot using : {model_src}")  # noqa: T201
         super().__init__(
@@ -321,39 +322,123 @@ class LanguageAgent(Agent):
 
         return message, memory
 
-    def on_completion_finish(self, response: ChatCompletion, message: Message, memory: list[Message], **kwargs: ChatCompletionParams) -> str:
+    def on_completion_finish(self, response: ChatCompletion, message: Message, memory: list[Message], **kwargs: ChatCompletionParams) -> str | list[Choice] | tuple[str, list[Choice]]:
         """Postprocess the response."""
 
-       
-        if "tools" in kwargs:
-            content = response.choices[0].message if kwargs.get("n", 1) == 1 else response.choices
-            content = content.model_dump() if hasattr(content, "model_dump") else [c.model_dump() for c in content]
+        # choices = None
+        # if hasattr(self, "streaming_response"):
+        #     if hasattr(self.streaming_response, "choices"):
+        #         if self.streaming_response.choices and isinstance(self.streaming_response.choices[0], str):
+        #             self.streaming_response.choices = json.loads(self.streaming_response.choices[0])
+        #           choices = self.streaming_response.choices
+        from rich.pretty import pprint
+        if isinstance(response, str):
+            self.context.extend([message, Message(role="assistant", content=response)])
+            return response
+        if hasattr(self, "streaming_response"):
+            pprint(self.streaming_response)
+            # content = self.streaming_response.content if  hasattr(self.streaming_response, "content") else response.choices[0].message.content
+            self.context.extend(
+                [
+                    message,
+                    Message(
+                        role="assistant",
+                        content=self.streaming_response.content,
+                        choices=self.streaming_response.choices,
+                    ),
+                ]
+            )
         else:
             content = response.choices[0].message.content
-        self.context.extend([message, Message(role="assistant", content=content)])
-        return content
+            self.context.extend([message, Message(role="assistant", content=content)])
+        # self.context[-1] = Message(role="assistant", content=response.choices[0].message.content)
+        # if self.context[-1].choices:
+        #     pprint(f"response:")
+        #     pprint(response)
+        #     self.context[-1].choices = [Choice(tool_calls=c.message.tool_calls) for c in response.choices]
+        # pprint(f"len of context: {len(self.context)}")
+        # pprint(self.context)
+
+        # pprint(self.context)
+        # # # Clean up the streaming response if appropriate.
+        # if hasattr(self, "streaming_response"):
+        #     del self.streaming_response
 
 
-    def on_stream_yield(self, response_chunk: ChatCompletionChunk, message: Message, memory: list[Message], **kwargs: ChatCompletionParams) -> str:
-        """Postprocess the response."""
-        self.streaming_response = Message(role="assistant") if not hasattr(self, "streaming_response") else self.streaming_response
+        if response.choices[0].message.tool_calls:
+            self.context[-1].choices = [Choice(tool_calls=[tc.__dict__ for tc in c.message.tool_calls]) for c in response.choices]
+            if self.context[-1].content is None:
+                self.context[-1].content = "Tool call."
+        # pprint(self.context)
+        # print(f"reponse.choices: ")
+        pprint(response.choices[0].message.content)
+        text, choices = response.choices[0].message.content, [Message(content=c.message.tool_calls) for c in response.choices]
+        return (text, choices) if choices and text else text if not choices else choices
+         
+    # globals()["choice_count"] = 0
+    def on_stream_yield(self, response_chunk: ChatCompletionChunk | Iterator[ChatCompletionChunk], message: Message, memory: list[Message], **kwargs: ChatCompletionParams) -> str | Message:
+        """Postprocess the response, accumulating both content and tool calls."""
+
+        # Ensure the streaming_response is initialized
+        if not hasattr(self, "streaming_response"):
+            self.streaming_response = Message(role="assistant", content="", choices=[Choice(tool_calls={})])
+            self.last_tool = None
+        # pprint(f"Response chunk : {response_chunk}\n")
+        # If n=1, handle a single response
         if kwargs.get("n", 1) == 1:
-            # Just build up the streaming response
-            if "tools" not in kwargs:
-                self.streaming_response.content.append(response_chunk.choices[0].delta.tool_calls)
-                before_and_after(always_iterable(self.streaming_response.content), lambda x: x is not None)
-            else:
-                self.streaming_response.content += response_chunk.choices[0].delta.content
-
-        else:
+            # Check if tools are being used
             if "tools" in kwargs:
-                # Multiple tools and multiple choices so append the new list of tools and choices
-                self.streaming_response.content.append([c.delta.tool_calls for c in response_chunk.choices])
-            self.streaming_response.content.append([c.delta.content for c in response_chunk.choices])
+           
+                # If a tool choice is required and tool calls are present
+                if kwargs.get("tool_choice") == "required" and response_chunk.choices and response_chunk.choices[0].delta.tool_calls:
+                    self.last_tool = response_chunk.choices[0].delta.tool_calls[0].function.name or getattr(self, "last_tool", "toolfallback")
+                    chunks = self.streaming_response.choices[0].tool_calls.get(
+                        self.last_tool, ""
+                    )
+                    # pprint(f"Tool call arguments: {chunks}")
+                    # pprint(f"Tool calls: {self.streaming_response.choices[0].tool_calls}")
+                    self.streaming_response.choices[0].tool_calls[self.last_tool] = (
+                        chunks
+                        + response_chunk.choices[0]
+                        .delta.tool_calls[0]
+                        .function.arguments
+                    )
 
 
-        yield self.streaming_response.content
-        return self.on_completion_finish(response_chunk, message, memory, **kwargs)
+                    # pprint(self.streaming_response.content)
+                    # pprint(self.streaming_response.choices) 
+                # globals()["choice_count"] += 1
+                # if globals()["choice_count"] == 2:
+                #     exit()
+                # If there is content (non-tool case), accumulate it
+                if response_chunk.choices and response_chunk.choices[0].delta.content:
+                    chunks = self.streaming_response.content or ""
+                    self.streaming_response.content = chunks + response_chunk.choices[0].delta.content
+            else:
+                # Accumulate content from all choices
+                self.streaming_response.content = self.streaming_response.content + response_chunk.choices[0].delta.content
+                # pprint(self.streaming_response.content)
+                # pprint(self.streaming_response.choices)
+            # yield self.streaming_response
+        else:
+            # Handle the multiple choices (n > 1) case
+            if "tools" in kwargs:
+                self.streaming_response.choices.append([c.delta.tool_calls for c in response_chunk.choices])
+            # Accumulate content from all choices
+            self.streaming_response.choices.append([c.delta.content for c in response_chunk.choices])
+        # pprint(self.streaming_response)
+        yield self.streaming_response
+        # return self.streaming_response.content if hasattr(self.streaming_response, "content") else self.streaming_response
+
+
+
+
+    def maybe_override_defaults(self, model_arg: str | None, **model_kwargs:ChatCompletionParams) -> ChatCompletionParams | GradioParams | dict:
+        """Override the default model if a model is provided."""
+        model_kwargs = {**self.default_model_kwargs, **model_kwargs}
+        if model_arg:
+            model_kwargs["model"] = model_arg
+        return model_kwargs
 
 
 
@@ -388,8 +473,8 @@ class LanguageAgent(Agent):
             "['Move left arm to the object', 'Move right arm to the object']"
         """
         message, memory = self.prepare_inputs(instruction, image, context)
-        model = model or self.actor.DEFAULT_MODEL
-        response = self.actor.predict(message, memory, model=model, **model_kwargs)
+        model_kwargs = self.maybe_override_defaults(model , **model_kwargs)
+        response = self.actor.predict(message, memory, **model_kwargs)
         return self.on_completion_finish(response, message, memory, **model_kwargs)
 
     def act_and_stream(
@@ -397,23 +482,26 @@ class LanguageAgent(Agent):
         **model_kwargs: ChatCompletionParams | GradioParams | dict,
     ) -> Generator[str | ChatCompletionChunk, None, str]:
         """Responds to the given instruction, image, and context and streams the response."""
-
-        model_kwargs = {**self.default_model_kwargs, **model_kwargs}
         message, memory = self.prepare_inputs(instruction, image, context)
-        model = model or model_kwargs.get("model", self.actor.DEFAULT_MODEL)
-        model_kwargs.update({"model": model})
+        
+        model_kwargs = self.maybe_override_defaults(model or model_kwargs.get("model", self.actor.DEFAULT_MODEL), **model_kwargs)
 
-        yield from(map(self.on_stream_yield, self.actor.stream(message, memory, **model_kwargs)))
+        for chunk in self.actor.stream(message, memory, **model_kwargs):
+            yield from self.on_stream_yield(chunk, message, memory, **model_kwargs)
+
+
+        if "tools" not in model_kwargs:
+            return "".join(alwaysiter(self.on_completion_finish(self.streaming_response, message, memory, **model_kwargs)))
+
+        return self.on_completion_finish(self.streaming_response, message, memory, **model_kwargs)
 
 
     async def async_act_and_stream(
         self, instruction: str, image: Image = None, context: list | str | Image | Message = None, model=None, **model_kwargs: ChatCompletionParams | GradioParams | dict
     ) -> AsyncGenerator[str, None]:
         """Responds to the given instruction, image, and context asynchronously and streams the response."""
-        model = model or model_kwargs.get("model", self.actor.DEFAULT_MODEL)
         message, memory = self.prepare_inputs(instruction, image, context)
-        model = model or self.actor.DEFAULT_MODEL
-        model_kwargs.update({"model": model})
+        model_kwargs = self.maybe_override_defaults(model or model_kwargs.get("model", self.actor.DEFAULT_MODEL), **model_kwargs)
         async for chunk in map(self.on_stream_yield,self.actor.astream(message, memory, **model_kwargs)):
             yield chunk
         
