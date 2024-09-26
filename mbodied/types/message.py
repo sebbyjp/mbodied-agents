@@ -12,12 +12,15 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from typing_extensions import Any, Literal, Generic, TypeVar, Callable
+from typing_extensions import Any, Literal, Generic, TypeVar, Callable, ParamSpec, Self
 
-from pydantic import Field
+from pydantic import Field, model_serializer
+from pydantic.json_schema import SkipJsonSchema
 
 from mbodied.types.sample import Sample
 from mbodied.types.sense.vision import Image
+from inspect import signature
+
 
 Role = Literal["user", "assistant", "system"]
 
@@ -25,13 +28,23 @@ Role = Literal["user", "assistant", "system"]
 class Parameter(Sample):
     name: str
     type: type
+    default: Sample | None = None
     resolved: bool = False
     """Whether or not the parameter has been resolved to a concrete value."""
 
-
-class Function(Sample):
+P = ParamSpec("P")
+T = TypeVar("T")
+class Function(Sample, Generic[P, T]):
     name: str = ""
     arguments: dict[str, Parameter] = {}
+    function_object: SkipJsonSchema[Callable[P, T]] | None = None
+
+    @classmethod
+    def from_callable(cls, func: Callable[P,T]) -> Self:
+        arguments = {}
+        for name, value in signature(func).parameters.items():
+            arguments[name] = Parameter(name=name, type=value.annotation, default=value.default)
+        return cls(name=func.__name__, arguments=arguments)
 
 P = TypeVar("P", bound=Parameter)
 class ToolCall(Sample, Generic[P]):
@@ -43,6 +56,12 @@ class ToolCall(Sample, Generic[P]):
     def resolved(self) -> bool:
         return all(v.resolved for v in self.args.values())
 
+    @model_serializer(when_used="always")
+    def serialize(self) -> dict:
+        return {
+            "function": self.function.model_dump(),
+            "arguments": {k: v.model_dump() for k, v in self.arguments.items()},
+        }
 
 PT = TypeVar("PT", bound=Parameter | ToolCall)
 

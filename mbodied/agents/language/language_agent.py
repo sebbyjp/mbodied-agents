@@ -168,9 +168,9 @@ class LanguageAgent(Agent):
             globals()["LanguageAgent._art_printed"] = True # Don't print the art again
         self.reminders: List[Reminder] = []
         print(f"Initializing language agent for robot using : {model_src}")  # noqa: T201
+        model_kwargs.update({"api_key": api_key or os.getenv("OPENAI_API_KEY")})
         super().__init__(
             model_src=model_src,
-            api_key=api_key,
             recorder_kwargs=recorder_kwargs,
             **model_kwargs,
         )
@@ -322,35 +322,47 @@ class LanguageAgent(Agent):
 
         return message, memory
 
-    def on_completion_finish(self, response: ChatCompletion, message: Message, memory: list[Message], **kwargs: ChatCompletionParams) -> str | list[Choice] | tuple[str, list[Choice]]:
+    def on_completion_finish(self, response: ChatCompletion, message: Message, memory: list[Message], **kwargs: ChatCompletionParams) -> str | list[str] | tuple[str, ToolCall] | ToolCall:
         """Postprocess the response."""
-
-        # choices = None
+        if hasattr(self, "streaming_response") and self.streaming_response is not None:
+            response: Message = self.streaming_response
+            text, response_message = response.content, Message(role="assistant", content=response.content or "Tool call.", choices=[Choice(tool_calls={k: json.loads(arg) for k, arg in c.tool_calls.items()}) for c in response.choices])
+            # print(f"Response: {response_message}")
+            self.context.extend([message, response_message])
+            # print(f"Tool calls: {response_message.choices[0].tool_calls}")
+            del self.streaming_response
+            if kwargs.get("tools") and text:
+                return text, response_message.choices[0].tool_calls
+            if kwargs.get("tools"):
+                return response_message.choices[0].tool_calls
+            
+            return text
+        # choices = None    
         # if hasattr(self, "streaming_response"):
         #     if hasattr(self.streaming_response, "choices"):
         #         if self.streaming_response.choices and isinstance(self.streaming_response.choices[0], str):
         #             self.streaming_response.choices = json.loads(self.streaming_response.choices[0])
         #           choices = self.streaming_response.choices
-        from rich.pretty import pprint
+
         if isinstance(response, str):
             self.context.extend([message, Message(role="assistant", content=response)])
             return response
-        if hasattr(self, "streaming_response"):
-            pprint(self.streaming_response)
-            # content = self.streaming_response.content if  hasattr(self.streaming_response, "content") else response.choices[0].message.content
-            self.context.extend(
-                [
-                    message,
-                    Message(
-                        role="assistant",
-                        content=self.streaming_response.content,
-                        choices=self.streaming_response.choices,
-                    ),
-                ]
-            )
-        else:
-            content = response.choices[0].message.content
-            self.context.extend([message, Message(role="assistant", content=content)])
+
+        # if hasattr(self, "streaming_response"):
+        #     # content = self.streaming_response.content if  hasattr(self.streaming_response, "content") else response.choices[0].message.content
+        #     self.context.extend(
+        #         [
+        #             message,
+        #             Message(
+        #                 role="assistant",
+        #                 content=self.streaming_response.content,
+        #                 choices=self.streaming_response.choices,
+        #             ),
+        #         ]
+        #     )
+        # else:
+        #     content = response.choices[0].message.content
+        #     self.context.extend([message, Message(role="assistant", content=content)])
         # self.context[-1] = Message(role="assistant", content=response.choices[0].message.content)
         # if self.context[-1].choices:
         #     pprint(f"response:")
@@ -364,16 +376,33 @@ class LanguageAgent(Agent):
         # if hasattr(self, "streaming_response"):
         #     del self.streaming_response
 
-
-        if response.choices[0].message.tool_calls:
-            self.context[-1].choices = [Choice(tool_calls=[tc.__dict__ for tc in c.message.tool_calls]) for c in response.choices]
-            if self.context[-1].content is None:
-                self.context[-1].content = "Tool call."
+        if kwargs.get("n", 1) == 1:
+            text, response_message = response.choices[0].message.content, Message(role="assistant", content="Tool call.", choices=[Choice(tool_calls={
+                tc.function.name: json.loads(tc.function.arguments) for tc in c.message.tool_calls
+            }) for c in response.choices] if response.choices[0].message.tool_calls is not None else None)
+            self.context.extend([message, response_message])
+            if kwargs.get("tools"):
+                if text:
+                    return text, response_message.choices[0].tool_calls
+                return response_message.choices[0].tool_calls
+            return text
+        
         # pprint(self.context)
         # print(f"reponse.choices: ")
-        pprint(response.choices[0].message.content)
-        text, choices = response.choices[0].message.content, [Message(content=c.message.tool_calls) for c in response.choices]
-        return (text, choices) if choices and text else text if not choices else choices
+        # from rich.pretty import pprint
+        # pprint("CONTEXT")
+        # pprint(self.context)
+        # pprint("RESPONSE")
+        # pprint(response)
+        text, tool_calls = [c.message.content for c in response.choices], Message(role="assistant", content="Tool call.", choices=[Choice(tool_calls={
+                tc.function.name: tc.function.arguments for tc in c.message.tool_calls
+            }) for c in response.choices])
+        self.context.extend([message, tool_calls])
+        if kwargs.get("tools") and text:
+            return text, tool_calls.choices
+        if kwargs.get("tools"):
+            return tool_calls.choices
+        return text
          
     # globals()["choice_count"] = 0
     def on_stream_yield(self, response_chunk: ChatCompletionChunk | Iterator[ChatCompletionChunk], message: Message, memory: list[Message], **kwargs: ChatCompletionParams) -> str | Message:
@@ -414,9 +443,21 @@ class LanguageAgent(Agent):
                 if response_chunk.choices and response_chunk.choices[0].delta.content:
                     chunks = self.streaming_response.content or ""
                     self.streaming_response.content = chunks + response_chunk.choices[0].delta.content
+                yield self.streaming_response
             else:
                 # Accumulate content from all choices
-                self.streaming_response.content = self.streaming_response.content + response_chunk.choices[0].delta.content
+                # print(f"Response chunk: {response_chunk}")
+                # from rich.pretty import pprint
+                # pprint(
+                    # f"type of response_chunk: {type(response_chunk.choices[0].delta.content)}"
+                # )
+                # pprint(f"Response chunk: {self.streaming_response.content}")
+                self.streaming_response.content = self.streaming_response.content[0] if isinstance(self.streaming_response.content, list) else self.streaming_response.content
+                self.streaming_response.content = str(self.streaming_response.content)
+                response_chunk = response_chunk.choices[0].delta.content[0] if isinstance(response_chunk.choices[0].delta.content, list) else response_chunk.choices[0].delta.content
+                response_chunk = str(response_chunk)
+                self.streaming_response.content = self.streaming_response.content + response_chunk
+                yield self.streaming_response.content
                 # pprint(self.streaming_response.content)
                 # pprint(self.streaming_response.choices)
             # yield self.streaming_response
@@ -426,8 +467,9 @@ class LanguageAgent(Agent):
                 self.streaming_response.choices.append([c.delta.tool_calls for c in response_chunk.choices])
             # Accumulate content from all choices
             self.streaming_response.choices.append([c.delta.content for c in response_chunk.choices])
+            yield self.streaming_response
         # pprint(self.streaming_response)
-        yield self.streaming_response
+
         # return self.streaming_response.content if hasattr(self.streaming_response, "content") else self.streaming_response
 
 
@@ -450,7 +492,7 @@ class LanguageAgent(Agent):
         context: list | str | Image | Message = None,
         model=None,
         **model_kwargs: ChatCompletionParams | GradioParams,
-    ) -> str | ChatCompletion:
+    ) -> str | Message:
         """Responds to the given instruction, image, and context.
 
         Uses the given instruction and image to perform an action.
@@ -484,7 +526,7 @@ class LanguageAgent(Agent):
         """Responds to the given instruction, image, and context and streams the response."""
         message, memory = self.prepare_inputs(instruction, image, context)
         
-        model_kwargs = self.maybe_override_defaults(model or model_kwargs.get("model", self.actor.DEFAULT_MODEL), **model_kwargs)
+        model_kwargs = self.maybe_override_defaults(model, **model_kwargs)
 
         for chunk in self.actor.stream(message, memory, **model_kwargs):
             yield from self.on_stream_yield(chunk, message, memory, **model_kwargs)

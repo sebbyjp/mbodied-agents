@@ -18,12 +18,12 @@ import logging
 import shutil
 from datetime import datetime
 from pathlib import Path
-from typing_extensions import Any, ParamSpec, TypedDict, Protocol
 
 import h5py
 import numpy as np
 from gymnasium import spaces
 from h5py import string_dtype
+from typing_extensions import Any, ParamSpec, Protocol, TypedDict
 
 from mbodied.types.sample import Sample
 from mbodied.types.sense.vision import Image

@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import os
 from unittest import mock
 import pytest
 from mbodied.agents.backends import OpenAIBackend
@@ -248,7 +249,7 @@ def test_language_agent_act_and_parse_retry(mock_act):
 
     class TestSample(Sample):
         key: str
-
+    os.environ["OPENAI_API_KEY"] = "fake_openai_api_key"
     agent = LanguageAgent()
     response = agent.act_and_parse("Parse this", parse_target=TestSample, max_retries=1)
     assert isinstance(response, TestSample)

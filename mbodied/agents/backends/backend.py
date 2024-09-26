@@ -12,10 +12,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 from abc import abstractmethod
-from typing import Generator
-
-
-class Backend:
+from typing_extensions import Generator, ParamSpec, Generic
+P = ParamSpec('P')
+class Backend(Generic[P]):
     """Base class for agent backends."""
 
     @abstractmethod
@@ -25,3 +24,11 @@ class Backend:
     @abstractmethod
     def stream(self, *args, **kwargs) -> Generator[str, None, None]:
         raise NotImplementedError
+    
+    def apredict(self, *args, **kwargs) -> str:
+        raise NotImplementedError
+    
+    def astream(self, *args, **kwargs) -> Generator[str, None, None]:
+        raise NotImplementedError
+    
+    

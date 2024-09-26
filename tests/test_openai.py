@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import os
 from unittest import mock
 import pytest
 from mbodied.agents.backends import OpenAIBackend
@@ -20,7 +21,8 @@ from mbodied.agents.language import LanguageAgent
 from mbodied.types.sense.vision import Image
 from pathlib import Path
 from importlib_resources import files
-
+from dotenv import load_dotenv
+load_dotenv(os.getenv("ENV_FILE"))
 # Mock responses for the API callss
 mock_openai_response = "OpenAI response text"
 
@@ -32,7 +34,7 @@ def openai_api_key():
 
 @pytest.fixture
 def openai_backend(openai_api_key):
-    return OpenAIBackend(api_key=openai_api_key, client=FakeOpenAI())
+    return OpenAIBackend(api_key=openai_api_key)
 
 
 class FakeOpenAI:

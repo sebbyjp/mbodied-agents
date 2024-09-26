@@ -1,10 +1,10 @@
 import json
 import os
-from typing import Generator, List, AsyncGenerator, Any
+from typing import Generator, List, AsyncGenerator, Any, overload
 
 import httpx
 
-from mbodied.agents.backends.openai_backend import OpenAIBackend
+from mbodied.agents.backends.openai_backend import Backend
 from mbodied.agents.backends.serializer import Serializer
 from mbodied.types.message import Message
 from mbodied.types.sense import Image
@@ -53,7 +53,7 @@ class HttpxSerializer(Serializer):
         return response
 
 
-class HttpxBackend(OpenAIBackend):
+class HttpxBackend(Backend):
     SERIALIZER = HttpxSerializer
     DEFAULT_SRC = "https://api.reka.ai/v1/chat"
     DEFAULT_MODEL = "reka-core-20240501"
@@ -74,7 +74,16 @@ class HttpxBackend(OpenAIBackend):
         self.serialized = serializer or self.SERIALIZER
         self.kwargs = kwargs
 
-    def predict(self, messages: List[Message], model: str | None = None, **kwargs) -> str:
+    @overload
+    def predict(self, message: Message, model: str | None = None, **kwargs) -> str:...
+    
+    @overload
+    def predict(self, messages: List[Message], model: str | None = None, **kwargs) -> str:...
+    
+    def predict(self, messages_or_message: List[Message] | Message, model: str | None = None, **kwargs) -> str:
+        if isinstance(messages_or_message, Message):
+            messages = [messages_or_message]
+        
         model = model or self.DEFAULT_MODEL
         data = {
             "messages": [self.serialized(msg).serialize() for msg in messages],

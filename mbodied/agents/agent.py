@@ -15,21 +15,38 @@
 
 import asyncio
 import logging
+from functools import wraps
 from inspect import signature
 from pathlib import Path
 from types import FunctionType
-from typing import Callable
-from functools import wraps
+from typing import Generic
+
+import gymnasium as gym
+from typing_extensions import Callable, ParamSpec, TypedDict, TypeVar
+
 from mbodied.agents.backends import AnthropicBackend, GradioBackend, HttpxBackend, OllamaBackend, OpenAIBackend
 from mbodied.agents.backends.gradio_backend import GradioParams, Job
-from mbodied.agents.backends.openai_backend import OpenAIBackend, ChatCompletionParams
+from mbodied.agents.backends.openai_backend import ChatCompletionParams
 from mbodied.data.recording import Recorder, RecorderParams
 from mbodied.types.sample import Sample
-import gymnasium as gym
+
 Backend = AnthropicBackend | GradioBackend | OpenAIBackend | HttpxBackend | OllamaBackend
 
+class ActorMap(TypedDict):
+    openai: OpenAIBackend 
+    anthropic: AnthropicBackend
+    ollama: OllamaBackend
+    gradio: GradioBackend
+    http: HttpxBackend
 
-class Agent:
+T = TypeVar('T')
+A = ParamSpec('A')
+"""Actor Params"""
+R = ParamSpec('R')
+"""Recorder Params"""
+
+
+class Agent(Generic[A, T, R]):
     """Abstract base class for agents.
 
     This class provides a template for creating agents that can
@@ -41,7 +58,7 @@ class Agent:
         kwargs (dict): Additional arguments to pass to the recorder.
     """
 
-    ACTOR_MAP = {
+    ACTOR_MAP: ActorMap = {
         "openai": OpenAIBackend,
         "anthropic": AnthropicBackend,
         "ollama": OllamaBackend,
@@ -53,7 +70,7 @@ class Agent:
     def init_backend(
         model_src: str,
         api_key: str,
-        **default_model_kwargs: ChatCompletionParams,
+        **default_model_kwargs: A.kwargs,
     ) -> type:
         """Initialize the backend based on the model source.
 
@@ -76,7 +93,7 @@ class Agent:
         return Agent.handle_default(model_src, **default_model_kwargs)
 
     @staticmethod
-    def handle_default(model_src: str, **default_model_kwargs: ChatCompletionParams) -> None:
+    def handle_default(model_src: str, **default_model_kwargs: A.kwargs) -> None:
         """Default to gradio then httpx backend if the model source is not recognized.
 
         Args:
@@ -101,9 +118,8 @@ class Agent:
         self,
         api_key: str = None,
         model_src=None,
-        *,
         recorder_kwargs: RecorderParams | None = None,
-        **default_model_kwarg: GradioParams | ChatCompletionParams,
+        **default_model_kwarg: A.kwargs,
     ):
         """Initialize the agent, optionally setting up a recorder, remote actor, or loading a local model.
 
@@ -132,37 +148,37 @@ class Agent:
 
     @staticmethod
     def recorded_action(
-        func: FunctionType, recorder_kwargs: RecorderParams | None = None
-    ) -> Sample:
-        """Peform action based on the observation and record the action, if applicable.
+        func: Callable[A, T], **recorder_kwargs: R.kwargs) -> Callable[..., T]: 
+            """Peform action based on the observation and record the action, if applicable.
 
-        Args:
-            *args: Additional arguments to customize the action.
-            **kwargs: Additional arguments to customize the action.
+            Args:
+                func: The function to wrap.
+                recorder_kwargs: Additional arguments to pass to the recorder.
 
-        Returns:
-            Sample: The action sample created by the agent.
-        """
 
-        def wrapper(self: Agent, *args, recorder_kwargs=recorder_kwargs, **kwargs):
-            action = self.act(*args, **kwargs)
-            recorder_kwargs = recorder_kwargs or {}
-            self.recorder = getattr(self, "recorder", Recorder(**recorder_kwargs))
-            observation = self.create_observation_from_args(
-                self.recorder.observation_space,
-                func,
-                args,
-                kwargs,
-            )
-            action = func(self, observation=observation, action=action)
-            self.recorder.record(observation=observation, action=action)
-            return action
+            Returns:
+                Sample: The action sample created by the agent.
+            """
 
-        return wrapper
+            def wrapper(self: Agent, *args: A.args,recorder_kwargs=recorder_kwargs, **kwargs: A.kwargs) -> T:
+                action = self.act(*args, **kwargs)
+                recorder_kwargs = recorder_kwargs or {}
+                self.recorder = getattr(self, "recorder", Recorder(**recorder_kwargs))
+                observation = self.create_observation_from_args(
+                    self.recorder.observation_space,
+                    func,
+                    args,
+                    kwargs,
+                )
+                action = func(self, observation=observation, action=action)
+                self.recorder.record(observation=observation, action=action)
+                return action
+
+            return wrapper
 
     @staticmethod
     def create_observation_from_args(
-        observation_space: gym.Space, function: Callable, *args, **kwargs
+        observation_space: "gym.Space", function: Callable[A, T], *args: A.args, **kwargs: A.kwargs,
     ) -> dict:
         """Helper method to create an observation from the arguments of a function."""
         param_names = list(signature(function).parameters.keys())

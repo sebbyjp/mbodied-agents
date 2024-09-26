@@ -33,7 +33,7 @@ class Serializer(Sample):
     """
 
     wrapped: Any | None = None
-    model_config: ConfigDict = ConfigDict(arbitrary_types_allowed=True)
+    model_config = ConfigDict(arbitrary_types_allowed=True)
 
     def __init__(
         self,
@@ -59,6 +59,7 @@ class Serializer(Sample):
         elif sample is not None:
             data["wrapped"] = sample
         super().__init__(**data)
+        self.wrapped = wrapped or message or sample
 
     @model_validator(mode="before")
     @classmethod
@@ -99,8 +100,6 @@ class Serializer(Sample):
 
         """
         if isinstance(sample, Message):
-            if hasattr(sample, "choices") and sample.choices is None:
-                del sample.choices
             return self.serialize_msg(sample)
         if not isinstance(sample, Sample):
             sample = Sample(sample)
@@ -108,8 +107,8 @@ class Serializer(Sample):
             return self.serialize_image(sample)
         if Image.supports(sample):
             return self.serialize_image(Image(sample))
-        if hasattr(sample, "datum") and isinstance(sample.datum, str):
-            return self.serialize_text(sample.datum)
+        if hasattr(sample, "wrapped") and isinstance(sample.wrapped, str):
+            return self.serialize_text(sample.wrapped)
 
         return self.serialize_text(str(sample))
 
@@ -140,8 +139,6 @@ class Serializer(Sample):
             A dictionary representing the serialized Message.
 
         """
-        from rich.pretty import pprint
-        pprint(message)
         return {
             "role": message.role,
             "content": [self.serialize_sample(c) for c in message.content],
@@ -183,4 +180,4 @@ class Serializer(Sample):
             A dictionary representing the serialized wrapped content.
 
         """
-        return self.model_dump()
+        return self.model_dump(exclude_none=True)

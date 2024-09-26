@@ -16,7 +16,7 @@
 import os
 import inspect
 
-from typing_extensions import Any, List, Iterator, ParamSpec, dataclass_transform, Generic, TypedDict
+from typing_extensions import Any, List, Iterator
 
 import backoff
 import httpx
@@ -32,13 +32,8 @@ from mbodied.types.sense.vision import Image
 from openai import OpenAI, AsyncOpenAI
 from openai.types.chat.chat_completion import ChatCompletion
 from openai.types.chat.chat_completion_chunk import ChatCompletionChunk
-from openai.types.chat.completion_create_params import CompletionCreateParams
+from openai.types.chat.completion_create_params import CompletionCreateParams as ChatCompletionParams
 
-
-P = ParamSpec("P", bound=CompletionCreateParams)
-@dataclass_transform()
-class ChatCompletionParams(TypedDict, Generic[P]):
-    pass
 
 
 ERRORS = (
@@ -82,7 +77,7 @@ class OpenAISerializer(Serializer):
         return {"type": "text", "text": text}
 
 
-class OpenAIBackend(Backend):
+class OpenAIBackend(Backend[ChatCompletionParams]):
     """Backend for interacting with OpenAI's API.
 
     Attributes:
@@ -101,7 +96,6 @@ class OpenAIBackend(Backend):
         self,
         api_key: str | None = None,
         response_format: str = None,
-        aclient=False,
         **default_model_kwargs: ChatCompletionParams,
     ):
         """Initializes the OpenAIBackend with the given API key and client.
@@ -114,8 +108,8 @@ class OpenAIBackend(Backend):
             **kwargs: Additional keyword arguments.
         """
         self.api_key = api_key or os.getenv("OPENAI_API_KEY") or os.getenv("MBODI_API_KEY")
-        init_kwargs = {k: v for k, v in default_model_kwargs if k in inspect.signature(OpenAI.__init__).parameters}
-        ainit_kwargs = {k: v for k, v in default_model_kwargs if k in inspect.signature(AsyncOpenAI.__init__).parameters}
+        init_kwargs = {k: v for k, v in default_model_kwargs.items() if k in inspect.signature(OpenAI.__init__).parameters}
+        ainit_kwargs = {k: v for k, v in default_model_kwargs.items() if k in inspect.signature(AsyncOpenAI.__init__).parameters}
         self.client = OpenAI(api_key=self.api_key, **init_kwargs)
         self.aclient = AsyncOpenAI(api_key=self.api_key, **ainit_kwargs)
 
@@ -144,9 +138,8 @@ class OpenAIBackend(Backend):
         """
         context = context or self.INITIAL_CONTEXT
         model = model or self.DEFAULT_MODEL
-        from rich.pretty import pprint 
-        pprint(message)
-        serialized_messages = [self.serialized(msg).serialize() for msg in context + [message]]
+
+        serialized_messages = [self.serialized(msg)() for msg in context + [message]]
 
         completion: ChatCompletion = self.client.chat.completions.create(
             model=model,
@@ -157,7 +150,10 @@ class OpenAIBackend(Backend):
         )
         return completion
 
-    def stream(self, message: Message, context: List[Message] = None, model: str = "gpt-4o", **kwargs: ChatCompletionParams) ->  Iterator[ChatCompletionChunk]:
+    def stream(self,
+         message: Message, 
+        context: List[Message] = None, model: str = "gpt-4o",
+         **chat_completion_params: ChatCompletionParams) ->  Iterator[ChatCompletionChunk]:
         """Streams a completion for the given messages using the OpenAI API standard.
 
         Args:
@@ -166,7 +162,6 @@ class OpenAIBackend(Backend):
             model: The model to be used for the completion.
             **kwargs: Additional keyword arguments.
         """
-        print(f"Streaming completion for message: {message}")
         model = model or self.DEFAULT_MODEL
         context = context or self.INITIAL_CONTEXT
         serialized_messages = [self.serialized(msg).serialize() for msg in context + [message]]
@@ -175,7 +170,7 @@ class OpenAIBackend(Backend):
             model=model,
             temperature=0,
             stream=True,
-            **kwargs,
+            **chat_completion_params,
         )
         
 
