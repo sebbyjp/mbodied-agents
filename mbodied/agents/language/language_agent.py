@@ -48,25 +48,26 @@ Examples:
 """
 
 import asyncio
+import inspect
 import json
 import logging
 import os
-import inspect
 from dataclasses import dataclass
-from typing_extensions import AsyncGenerator, Generator, List, Literal, TypeAlias, Iterator
 
 from art import text2art
+from more_itertools import always_iterable as alwaysiter
 from pydantic import AnyUrl, DirectoryPath, FilePath, NewPath
+from typing_extensions import AsyncGenerator, Generator, Iterator, List, Literal, TypeAlias
 
 from mbodied.agents import Agent
 from mbodied.agents.backends import OpenAIBackend
 from mbodied.agents.backends.gradio_backend import GradioParams
+from mbodied.agents.backends.openai_backend import ChatCompletion, ChatCompletionChunk, ChatCompletionParams
 from mbodied.data.recording import RecorderParams
-from mbodied.agents.backends.openai_backend import ChatCompletionParams, ChatCompletion, ChatCompletionChunk
-from mbodied.types.message import Message, Choice, ToolCall, Function
+from mbodied.types.message import Choice, Message, ToolCall
+from mbodied.types.message import FunctionDefinition as Function
 from mbodied.types.sample import Sample
 from mbodied.types.sense.vision import Image
-from more_itertools import always_iterable as alwaysiter
 
 SupportsOpenAI: TypeAlias = OpenAIBackend
 
@@ -330,6 +331,7 @@ class LanguageAgent(Agent):
     ) -> str | list[str] | tuple[str, ToolCall] | ToolCall:
         """Postprocess the response."""
         from rich.pretty import pprint
+
         pprint(response)
         pprint("streaming_response")
         pprint(getattr(self, "streaming_response", None))
@@ -456,6 +458,7 @@ class LanguageAgent(Agent):
         return text
 
     # globals()["choice_count"] = 0
+
     def on_stream_yield(
         self,
         response_chunk: ChatCompletionChunk | Iterator[ChatCompletionChunk],
@@ -466,7 +469,6 @@ class LanguageAgent(Agent):
         **kwargs: ChatCompletionParams,
     ) -> str | Message:
         """Postprocess the response, accumulating both content and tool calls."""
-
         # Ensure the streaming_response is initialized
         if not hasattr(self, "streaming_response"):
             if "tools" in kwargs and kwargs.get("tool_choice") == "required":
