@@ -55,7 +55,7 @@ class Parameter(Sample):
 
 P = ParamSpec("P")
 T = TypeVar("T")
-class Function(Sample):
+class FunctionDefinition(Sample):
     name: str = ""
     parameters: dict[str, Parameter] = {}
     function_object: SkipJsonSchema[Callable[P, T]] | None = None
@@ -72,13 +72,15 @@ class FunctionLike(Protocol):
     parameters: dict[str, Parameter] | None
 
 P = TypeVar("P")
+
+
 class ToolCall(Sample, Generic[P]):
-    function: Function
+    function: FunctionDefinition
     # Can be an abstract parameter or a concrete value
     arguments: dict[str, P] = {}
 
     def __init__(self, function: FunctionLike | None = None, fn_name: str | None = None, parameters: dict | None = None, **arguments):
-        self.function = Function(name=fn_name or getattr(function, "name", "anonymous"), parameters=parameters or getattr(function, "parameters", {}))
+        self.function = FunctionDefinition(name=fn_name or getattr(function, "name", "anonymous"), parameters=parameters or getattr(function, "parameters", {}))
         self.arguments = arguments
         super().__init__()
 
@@ -117,7 +119,7 @@ class TaskCompletion(Sample):
 class ToolCalls(BaseModel):
     pass
     
-class _Choice(BaseModel):
+class Choice(BaseModel):
     model_config = ConfigDict(use_attribute_docstrings=True)
     tool_calls: ToolCalls = Field(default_factory=ToolCalls)
     image: Image | None = Field(default=None)
@@ -125,32 +127,18 @@ class _Choice(BaseModel):
     code: str = Field(default="", description="The code to be executed.")
     """The code to be executed."""
 
-    # def __init__(self, tool_calls: ChatCompletionChoice | ChoiceDelta | dict | None, **kwargs):
-    #     choice = tool_calls
-    #     if isinstance(choice, ChatCompletionChoice):
-    #         tool_calls = {tc.function.name: tc.function.arguments for tc in choice.message.tool_calls}
-    #     elif isinstance(choice, ChoiceDelta):
-    #         tool_calls = {tc.function.name: tc.function.arguments for tc in choice.tool_calls}
-    #     elif isinstance(choice, ChatCompletion):
-    #         tool_calls = {tc.function.name: tc.function.arguments for tc in choice.choices[0].message.tool_calls}
-    #     else:
-    #         tool_calls = choice
-    #     super().__init__(tool_calls=tool_calls, **kwargs)
+    def __init__(self, tool_calls: ChatCompletionChoice | ChoiceDelta | dict | None, **kwargs):
+        choice = tool_calls
+        if isinstance(choice, ChatCompletionChoice):
+            tool_calls = {tc.function.name: tc.function.arguments for tc in choice.message.tool_calls}
+        elif isinstance(choice, ChoiceDelta):
+            tool_calls = {tc.function.name: tc.function.arguments for tc in choice.tool_calls}
+        elif isinstance(choice, ChatCompletion):
+            tool_calls = {tc.function.name: tc.function.arguments for tc in choice.choices[0].message.tool_calls}
+        else:
+            tool_calls = choice
+        super().__init__(tool_calls=tool_calls, **kwargs)
     
-c = _Choice()
-
-from pydantic._internal._model_construction import ModelMetaclass
-
-class ChoiceMeta(ModelMetaclass):
-    @classmethod
-    def __new__(cls,mcs, name, bases, namespace, **kwargs):
-        return super().__new__(mcs, name, bases, namespace, **kwargs)
-
-
-class Choice(ToolCall, metaclass=type):
-    __signature__ = signature(_Choice)
-
-c = Choice()
 
 class Message(Sample):
     """Single completion sample space.
@@ -163,6 +151,7 @@ class Message(Sample):
     """
     role: Role = "user"
     content: Any | str | Choice | ToolCall | list
+
     choices: list[Choice] | None = None
     """This will only be used if multiple responses are requested."""
 
