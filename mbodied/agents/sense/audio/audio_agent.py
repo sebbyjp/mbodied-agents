@@ -16,6 +16,7 @@ import logging
 import os
 import platform
 import threading
+from typing import Generator
 import wave
 
 try:
@@ -24,6 +25,7 @@ try:
 except ImportError:
     logging.warning("playsound or pyaudio is not installed. Please run `pip install pyaudio playsound` to install.")
 
+import numpy as np
 from openai import OpenAI
 from typing_extensions import Literal
 
@@ -49,8 +51,7 @@ class AudioAgent(Agent):
 
     def __init__(
         self,
-        listen_filename: str = "tmp_listen.wav",
-        tmp_speak_filename: str = "tmp_speak.mp3",
+        source: str = "audio",
         use_pyaudio: bool = True,
         api_key: str = None,
         run_local: bool = False,
@@ -132,6 +133,14 @@ class AudioAgent(Agent):
                 os.remove(self.listen_filename)
             return typed_input + transcription if transcription else ""
 
+    def set_input_audio(self, audio_source: str | Generator[bytes | np.ndarray, None, None]) -> None:
+        """Sets the input audio source for the agent.
+
+        Args:
+            audio_source: The audio source to use for input.
+        """
+        self.audio_source = audio_source
+        
     def record_audio(self) -> None:
         """Records audio from the microphone and saves it to a file."""
         chunk = 1024

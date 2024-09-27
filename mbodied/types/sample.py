@@ -17,6 +17,7 @@ import logging
 from collections import OrderedDict
 from enum import Enum
 from pathlib import Path
+from typing import ItemsView, Iterator
 from typing_extensions import Any, Dict, List, Literal, Sequence, Union, get_origin, TypeVarTuple, Generic, MutableMapping, TypeVar, ParamSpec
 
 import numpy as np
@@ -33,7 +34,9 @@ from mbodied.utils.import_utils import smart_import
 
 Flattenable = Annotated[Literal["dict", "np", "pt", "list"], "Numpy, PyTorch, list, or dict"]
 
-
+KT = TypeVar("KT")
+VTs = TypeVarTuple("VTs")
+P = ParamSpec("P")
 class Sample(BaseModel, MutableMapping):
     """A base model class for serializing, recording, and manipulating arbitray data.
 
@@ -114,10 +117,13 @@ class Sample(BaseModel, MutableMapping):
     def __init__(self, wrapped=None, **data):
         """Accepts an arbitrary wrapped as well as keyword arguments."""
         if wrapped is not None:
-            if isinstance(wrapped, Sample):
-                data.update({k: v for k, v in wrapped})
-            elif isinstance(wrapped, dict):
-                data.update(wrapped)
+            if isinstance(wrapped, Sample | dict):
+                from rich.pretty import pprint
+                pprint("Wrapped")
+                pprint(wrapped)
+                pprint("Data")
+                pprint(data)
+                data.update(**{k: v for k, v in wrapped.items() if k not in data})
             else:
                 data["wrapped"] = wrapped
         super().__init__(**data)
@@ -129,7 +135,10 @@ class Sample(BaseModel, MutableMapping):
     def __str__(self) -> str:
         """Return a string representation of the Sample instance."""
         return f"{self.__class__.__name__}({', '.join([f'{k}={v}' for k, v in self.dict().items() if v is not None])})"
-
+    
+    def items(self) -> Iterator[tuple[str, Any]]:
+        """Return the items of the Sample instance."""
+        yield from [(k, v) for k, v in self.__dict__.items() if v is not None]
     def dict(self, exclude_none=True, exclude: set[str] = None) -> Dict[str, Any]:
         """Return the Sample object as a dictionary with None values excluded.
 
