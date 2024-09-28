@@ -13,6 +13,7 @@
 # limitations under the License.
 
 from inspect import signature
+import json
 from typing import Mapping, MutableMapping, Protocol
 
 from openai.types.beta.assistant_tool_choice_function import AssistantToolChoiceFunction
@@ -116,10 +117,10 @@ class TaskCompletion(Sample):
     text: str = ""
     code: str = ""
 
-class ToolCalls(BaseModel):
+class ToolCalls(Sample):
     pass
     
-class Choice(BaseModel):
+class Choice(Sample):
     model_config = ConfigDict(use_attribute_docstrings=True)
     tool_calls: ToolCalls = Field(default_factory=ToolCalls)
     image: Image | None = Field(default=None)
@@ -137,6 +138,7 @@ class Choice(BaseModel):
             tool_calls = {tc.function.name: tc.function.arguments for tc in choice.choices[0].message.tool_calls}
         else:
             tool_calls = choice
+        tool_calls = {k: json.loads(v) if isinstance(v, str) else v for k, v in tool_calls.items()}
         super().__init__(tool_calls=tool_calls, **kwargs)
     
 

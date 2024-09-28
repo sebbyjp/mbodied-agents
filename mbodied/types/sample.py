@@ -100,10 +100,16 @@ class Sample(BaseModel, MutableMapping):
             key = key[0]
         if key.startswith("_") and key not in self.model_fields | self.model_extra | type(self).__pydantic_private__:
             raise AttributeError(f"Attribute {key} has no getter")
-        return self.__dict__[key]
+        # print(getattr(self, key))
+        # if key not in self.__dict__:  # noqa: WPS521
+        #     raise KeyError(key)
+        return getattr(self, key)
     
     def __setitem__(self, key: str, value: Any) -> None:
         """Set an item in the Sample instance."""
+        if key.startswith("_") and key not in self.model_fields | self.model_extra | type(self).__pydantic_private__:
+            raise AttributeError(f"Attribute {key} has no setter")
+        setattr(self, key, value)
         self.__dict__[key] = value
 
     model_config = ConfigDict(

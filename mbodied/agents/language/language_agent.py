@@ -331,41 +331,49 @@ class LanguageAgent(Agent):
     ) -> str | list[str] | tuple[str, ToolCall] | ToolCall:
         """Postprocess the response."""
         from rich.pretty import pprint
-
+        pprint("message")
         pprint(response)
         pprint("streaming_response")
         pprint(getattr(self, "streaming_response", None))
         if hasattr(self, "streaming_response") and self.streaming_response is not None:
-            response: Message = self.streaming_response
+            response_message: Message = self.streaming_response
         else:
             if kwargs.get("n", 1) == 1:
-                response = Message(role="assistant", choices=response.choices[0].message.content)
+                response_message = Message(role="assistant", choices=response.choices[0].message.content)
             elif not response.choices:
                 raise ValueError("No response choices found.")
             elif "tools" in kwargs and kwargs.get("tool_choice") == "required":
-                response = Message(role="assistant", content=[ToolCall(c.message.tool_calls) for c in response.choices])
+                response_message = Message(
+                    role="assistant", content=[ToolCall(c.message.tool_calls) for c in response.choices]
+                )
 
         if not response.choices and hasattr(self, "streaming_response"):
-            content = response.content
+            content = response_message.content
             self.context.extend([message, Message(role="assistant", content=content)])
             return self.streaming_response.content
-
+        pprint("RESPONSE")
+        pprint(response)
+        pprint("RESPONSE.CHOICES")
+        pprint(response.choices)
         text, response_message = (
-            response.content,
+            response.choices[0].message.content,
             Message(
                 role="assistant",
-                content=response.content or "Tool call.",
-                choices=[Choice(choice) for choice in response.choices],
+                content=response.choices[0].message.content,
+                choices=[Choice(choice) for choice in response.choices] if response.choices else None,
             ),
         )
         # print(f"Response: {response_message}")
         self.context.extend([message, response_message])
-        # print(f"Tool calls: {response_message.choices[0].tool_calls}")
-        del self.streaming_response
+        tool_calls = response_message.choices[0].tool_calls
+        tool_calls = tool_calls[0] if isinstance(tool_calls, list) else tool_calls
+
+        if hasattr(self, "streaming_response"):
+            del self.streaming_response
         if kwargs.get("tools") and text:
-            return text, response_message.choices[0].tool_calls
+            return text, 
         if kwargs.get("tools"):
-            return response_message.choices[0].tool_calls
+            return tool_calls
 
         return text
         # choices = None
