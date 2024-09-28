@@ -16,7 +16,7 @@ from .anthropic_backend import AnthropicBackend, AnthropicSerializer
 from .gradio_backend import GradioBackend
 from .httpx_backend import HttpxBackend, HttpxSerializer
 from .ollama_backend import OllamaBackend, OllamaSerializer
-from .openai_backend import OpenAIBackendMixin as OpenAIBackend
+from .openai_backend import OpenAIBackend as OpenAIBackend
 from .openai_backend import OpenAISerializer
 
 __all__ = [

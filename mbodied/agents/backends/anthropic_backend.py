@@ -16,7 +16,7 @@ from typing import Any, List
 
 import anthropic
 
-from mbodied.agents.backends.openai_backend import OpenAIBackendMixin
+from mbodied.agents.backends.openai_backend import OpenAIBackend
 from mbodied.agents.backends.serializer import Serializer
 from mbodied.types.message import Message
 from mbodied.types.sense.vision import Image
@@ -57,7 +57,7 @@ class AnthropicSerializer(Serializer):
         return {"type": "text", "text": text}
 
 
-class AnthropicBackend(OpenAIBackendMixin):
+class AnthropicBackend(OpenAIBackend):
     """Backend for interacting with Anthropic's API.
 
     Attributes:

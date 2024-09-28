@@ -1,5 +1,9 @@
+<<<<<<< HEAD
 embdata==0.0.12
 mypy
 mrender==0.0.14
 eclipse-zenoh
 imutils
+=======
+
+>>>>>>> prod3

@@ -125,7 +125,7 @@ def test_completion():
 def test_completion_single_message_and_context():
     wrapper = OllamaBackend()
     text = "What is the capital of France?"
-    response = wrapper.predict(Message(role="user", content=text), ["context"], model="llama2")
+    response = wrapper.predict(Message(role="user", content=text), model="llama2")
     assert response == mock_response
 
 

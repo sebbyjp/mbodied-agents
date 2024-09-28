@@ -13,9 +13,25 @@
 # limitations under the License.
 
 from gradio_client import Client
+from gradio_client.client import DEFAULT_TEMP_DIR
 from gradio_client.client import Job
-
+from typing_extensions import Literal, Any, Protocol, ParamSpec, TypedDict
+from pathlib import Path
 from mbodied.agents.backends.backend import Backend
+
+
+P = ParamSpec("P", bound=TypedDict)
+class GradioParams(Protocol[P]):    
+    src: str
+    hf_token: str | None = None
+    max_workers: int = 40
+    verbose: bool = True
+    auth: tuple[str, str] | None = None
+    httpx_kwargs: dict[str, Any] | None = None
+    headers: dict[str, str] | None = None
+    download_files: str | Path | Literal[False] = DEFAULT_TEMP_DIR,
+    ssl_verify: bool = True
+    _skip_components: bool = True
 
 
 class GradioBackend(Backend):
