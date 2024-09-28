@@ -12,10 +12,18 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import logging
 import math
+from typing import Any
 
 from gymnasium import spaces
-from xarm.wrapper import XArmAPI
+
+try:
+    from xarm.wrapper import XArmAPI
+except ImportError:
+    logging.warning("XarmAPI not found. Please install the xArm-Python-SDK package.")
+    xarm = Any
+
 
 from mbodied.robots import Robot
 from mbodied.types.motion.control import HandControl
@@ -26,8 +34,10 @@ class XarmRobot(Robot):
     """Control the xArm robot arm with SDK.
 
     Usage:
-        xarm = XarmRobot()
-        xarm.do(HandControl(...))
+    ```python
+    xarm = XarmRobot()
+    xarm.do(HandControl(...))
+    ```
 
     Attributes:
         ip: The IP address of the xArm robot.
@@ -35,7 +45,7 @@ class XarmRobot(Robot):
         home_pos: The home position of the robot arm.
     """
 
-    def __init__(self, ip: str = "192.168.1.228", use_realsense=False):
+    def __init__(self, ip: str = "192.168.1.228", use_realsense: bool = False):
         """Initializes the XarmRobot and sets up the robot arm.
 
         Args:

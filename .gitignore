@@ -189,4 +189,8 @@ wandb/
 .tmp_listen*
 .tmp_speak*
 saved_datasets/
+<<<<<<< HEAD
 .aider*
+=======
+site/
+>>>>>>> upstream/main

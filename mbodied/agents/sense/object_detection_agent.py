@@ -17,12 +17,12 @@ import sys
 from typing import Any, Dict
 
 from mbodied.agents.sense.sensory_agent import SensoryAgent
-from mbodied.types.sense.scene import Scene
 from mbodied.types.sense.vision import Image
+from mbodied.types.sense.world import World
 
 
 class ObjectDetectionAgent(SensoryAgent):
-    """A object detection agent that uses a remote object detection, i.e. YOLO server, to detect objects in an image."""
+    """A object detection agent that uses a remote object detection, i.e. YOLOWorld, Grounding Dino, to detect objects in an image."""
 
     def __init__(
         self,
@@ -36,29 +36,45 @@ class ObjectDetectionAgent(SensoryAgent):
             **kwargs,
         )
 
-    def act(self, image: Image, objects: list[str] | str, *args, api_name: str = "/detect", **kwargs) -> Scene:
+    def act(
+        self,
+        image: Image,
+        objects: list[str] | str,
+        model_type: str = "YOLOWorld",
+        *args,
+        api_name: str = "/detect",
+        **kwargs,
+    ) -> World:
         """Act based on the prompt and image using the remote object detection server.
 
         Args:
             image (Image): The image to act on.
             objects (list[str] | str): The objects to detect in the image.
+            model_type (str): The model type to use for the object detection. Options: "YOLOWorld", "Grounding DINO".
             *args: Variable length argument list.
+            api_name (str): The name of the API endpoint to use.
             **kwargs: Arbitrary keyword arguments.
 
         Returns:
-            Scene: The scene data with the detected objects.
+            World: The world data with the detected objects.
         """
         if self.actor is None:
             raise ValueError("Remote actor for agent not initialized.")
 
         if isinstance(objects, list):
             objects = ",".join(objects)
-        annotated_img, json_dict = self.actor.predict(image.base64, objects, *args, api_name=api_name, **kwargs)
-        return Scene.model_validate(json_dict)
+        annotated_img, json_dict = self.actor.predict(
+            image.base64, objects, model_type=model_type, *args, api_name=api_name, **kwargs
+        )
+        return World.model_validate(json_dict)
 
 
 # Example usage:
 if __name__ == "__main__":
     agent = ObjectDetectionAgent(model_src="https://api.mbodi.ai/sense/")
-    result = agent.act(image=Image("resources/bridge_example.jpeg", size=(224, 224)), objects=["spoon", "bowl"])
+    result = agent.act(
+        image=Image("resources/bridge_example.jpeg", size=(224, 224)),
+        objects=["spoon", "bowl"],
+        model_type="Grounding DINO",
+    )
     result.annotated.pil.show()

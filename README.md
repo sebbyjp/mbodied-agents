@@ -15,11 +15,11 @@
 [![license](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 [![PyPI - Python Version](https://img.shields.io/pypi/pyversions/mbodied)](https://pypi.org/project/mbodied/)
 [![PyPI](https://img.shields.io/pypi/v/mbodied)](https://pypi.org/project/mbodied)
+[![Downloads](https://static.pepy.tech/badge/mbodied)](https://pepy.tech/project/mbodied)</br>
 [![MacOS](https://github.com/mbodiai/opensource/actions/workflows/macos.yml/badge.svg?branch=main)](https://github.com/mbodiai/opensource/actions/workflows/macos.yml)
 [![Ubuntu](https://github.com/mbodiai/opensource/actions/workflows/ubuntu.yml/badge.svg)](https://github.com/mbodiai/opensource/actions/workflows/ubuntu.yml)
-[![Documentation Status](https://readthedocs.com/projects/mbodi-ai-mbodied/badge/?version=latest)](https://readthedocs.com/projects/mbodi-ai-mbodied-agents/badge/?version=latest)
 
-📖 **Docs**: [readthedocs](https://mbodi-ai-mbodied-agents.readthedocs-hosted.com/en/latest/)
+📖 **Docs**: [docs](https://api.mbodi.ai/docs)
 
 🚀 **Simple Robot Agent Example:** [<img align="center" src="https://colab.research.google.com/assets/colab-badge.svg" />](https://colab.research.google.com/drive/1KN0JohcjHX42wABBHe-CxXP-NWJjbZts?usp=sharing) </br>
 💻 **Simulation Example with [SimplerEnv](https://github.com/simpler-env/SimplerEnv):** [<img align="center" src="https://colab.research.google.com/assets/colab-badge.svg" />](https://colab.research.google.com/drive/18oiuw1yTxO5x-eT7Z8qNyWtjyYd8cECI?usp=sharing) </br>
@@ -33,10 +33,12 @@
 
 **Updates:**
 
-**Aug 6 2024, embodied-agents v1.1**
+**Aug 28 2024, embodied-agents v1.2**
 
+- New [Doc site](https://api.mbodi.ai/docs) is up!
 - Added the features to record dataset on [robot](mbodied/robots/robot.py) natively.
-- Add multiple new Sensory Agents, i.e. [depth estimation](mbodied/agents/sense/depth_estimation_agent.py), [object detection](mbodied/agents/sense/object_detection_agent.py), [image segmentation](mbodied/agents/sense/segmentation_agent.py) with public [API endpoints](https://api.mbodi.ai/sense/) hosted.
+- Add multiple new Sensory Agents, i.e. [depth estimation](mbodied/agents/sense/depth_estimation_agent.py), [object detection](mbodied/agents/sense/object_detection_agent.py), [image segmentation](mbodied/agents/sense/segmentation_agent.py) with public [API endpoints](https://api.mbodi.ai/sense/) hosted. And a simple cli `mbodied` for trying them.
+- Added [Auto Agent](mbodied/agents/auto/auto_agent.py) for dynamic agents selection.
 
 **June 30 2024, embodied-agents v1.0**:
 
@@ -69,7 +71,7 @@
     - [Run a robotics transformer model on a robot.](#run-a-robotics-transformer-model-on-a-robot)
     - [Notebooks](#notebooks)
   - [The Sample Class](#the-sample-class)
-  - [Building Blocks](#building-blocks)
+  - [API Reference](#api-reference)
   - [Directory Structure](#directory-structure)
   - [Contributing](#contributing)
 
@@ -80,6 +82,8 @@ This repository is broken down into 3 main components: **Agents**, **Data**, and
 - **Language Agents** always return a string.
 - **Motor Agents** always return a `Motion`.
 - **Sensory Agents** always return a `SensorReading`.
+
+For convenience, we also provide **AutoAgent** which dynamically initializes the right agent for the specified task. See [API Reference](#auto-agent) below for more.
 
 A call to `act` or `async_act` can perform local or remote inference synchronously or asynchronously. Remote execution can be performed with [Gradio](https://www.gradio.app/docs/python-client/introduction), [httpx](https://www.python-httpx.org/), or different LLM clients. Validation is performed with [Pydantic](https://docs.pydantic.dev/latest/).
 
@@ -145,8 +149,8 @@ _Embodied Agents are not yet capable of learning from in-context experience_:
 ### Endpoints
 
 - [OpenVLA](https://api.mbodi.ai/community-models/)
+- [Sensory Tools](https://api.mbodi.ai/sense/)
 - [Embodied AI Playground](https://api.mbodi.ai/benchmark/)
-- [3D Object Pose Detection](https://api.mbodi.ai/3d-object-pose-detection/)
 
 ### Support Matrix
 
@@ -156,14 +160,22 @@ _Embodied Agents are not yet capable of learning from in-context experience_:
 
 ### Roadmap
 
-- [ ] More Motor Agents
-- [ ] Yolo, SAM2, DepthAnything Sensory Agents
-- [ ] FineTuning Scripts
+- [x] OpenVLA Motor Agent
+- [x] Automatic dataset recording on Robot
+- [x] Yolo, SAM2, DepthAnything Sensory Agents
+- [x] Auto Agent
+- [ ] ROS integration
+- [ ] More Motor Agents, i.e. RT1
+- [ ] More device support, i.e. OpenCV camera
+- [ ] Fine-tuning Scripts
 
 ## Installation
 
 ```shell
 pip install mbodied
+
+# With extra dependencies, i.e. torch, opencv-python, etc.
+pip install mbodied[extras]
 
 # For audio support
 pip install mbodied[audio]
@@ -254,9 +266,7 @@ To learn more about all of the possibilities with embodied agents, check out the
 - You can `pack` a list of `Sample`s or Dicts into a single `Sample` or `Dict` and `unpack` accordingly?
 - You can `unflatten` any python structure into a `Sample` class so long you provide it with a valid json schema?
 
-<details> <summary><h2 style="display: inline-block;">Deep Dive</h2></summary>
-
-## Building Blocks
+## API Reference
 
 #### Creating a Sample
 
@@ -376,6 +386,16 @@ agent = LanguageAgent(
 response = agent.act("Hello, how are you?", model="mistralai/Mistral-7B-Instruct-v0.3")
 ```
 
+Example using Ollama:
+
+```python
+agent = LanguageAgent(
+    context="You are a robot agent.", model_src="ollama",
+    model_kwargs={"endpoint": "http://localhost:11434/api/chat"}
+)
+response = agent.act("Hello, how are you?", model="llama3.1")
+```
+
 ### Motor Agent
 
 [Motor Agent](mbodied/agents/motion/motor_agent.py) is similar to Language Agent but instead of returning a string, it always returns a `Motion`. Motor Agent is generally powered by robotic transformer models, i.e. OpenVLA, RT1, Octo, etc.
@@ -393,6 +413,32 @@ Currently, we have:
 - [3D object pose estimator](mbodied/agents/sense/object_pose_estimator_3d.py)
 
 agents that process robot's sensor information.
+
+### Auto Agent
+
+[Auto Agent](mbodied/agents/auto/auto_agent.py) dynamically selects and initializes the correct agent based on the task and model.
+
+```python
+from mbodied.agents.auto.auto_agent import AutoAgent
+
+# This makes it a LanguageAgent
+agent = AutoAgent(task="language", model_src="openai")
+response = agent.act("What is the capital of France?")
+
+# This makes it a motor agent: OpenVlaAgent
+auto_agent = AutoAgent(task="motion-openvla", model_src="https://api.mbodi.ai/community-models/")
+action = auto_agent.act("move hand forward", Image(size=(224, 224)))
+
+# This makes it a sensory agent: DepthEstimationAgent
+auto_agent = AutoAgent(task="sense-depth-estimation", model_src="https://api.mbodi.ai/sense/")
+depth = auto_agent.act(image=Image(size=(224, 224)))
+```
+
+Alternatively, you can use `get_agent` method in [auto_agent](mbodied/agents/auto/auto_agent.py) as well.
+
+```python
+language_agent = get_agent(task="language", model_src="openai")
+```
 
 ### Motions
 
@@ -453,8 +499,6 @@ replayer = Replayer(path=str("path/to/dataset.h5"))
 for observation, action in replayer:
    ...
 ```
-
-</details>
 
 ## Directory Structure
 

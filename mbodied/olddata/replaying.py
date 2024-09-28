@@ -307,7 +307,11 @@ class FolderReplayer:
                     state = sample[2] if len(sample) > 2 else None
                     image = np.asarray(observation["image"])
                     instruction = observation["instruction"]
-                    yield {"observation": {"image": image, "instruction": instruction}, "action": action, "state": state}
+                    yield {
+                        "observation": {"image": image, "instruction": instruction},
+                        "action": action,
+                        "state": state,
+                    }
 
 
 def to_dataset(folder: str, name: str, description: str = None, **kwargs) -> None:
@@ -354,7 +358,7 @@ def parse_slice(s: str) -> int | slice:
     Returns:
         Union[int, slice]: Integer or slice.
 
-    Example:
+    Examples:
         >>> lst = [0, 1, 2, 3, 4, 5]
         >>> lst[parse_slice("1")]
         1

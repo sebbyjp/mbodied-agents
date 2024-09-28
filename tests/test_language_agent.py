@@ -18,6 +18,7 @@ from mbodied.agents.backends import OpenAIBackend
 from mbodied.types.message import Message
 from mbodied.agents.language.language_agent import LanguageAgent
 from mbodied.types.sense.vision import Image
+from mbodied.agents.auto.auto_agent import AutoAgent
 
 # Mock responses for the API calls
 mock_openai_response = "OpenAI response text"
@@ -123,6 +124,18 @@ def test_language_agent_history(mock_openai_init, mock_openai_act):
     assert history[1].content == ["How are you?"]
     assert history[2].content == ["What's your name?"]
     assert history[3].role == "assistant"
+
+
+@mock.patch("mbodied.agents.backends.OpenAIBackend.__init__", return_value=None)
+@mock.patch("mbodied.agents.backends.OpenAIBackend.predict", return_value=mock_openai_response)
+def test_auto_language_agent(mock_openai_init, mock_openai_act):
+    agent = AutoAgent(task="language", model_src="openai", context="Hello, how are you?")
+    agent.act("What's your name?")
+    assert len(agent.context) == 4
+    # Default to LanguageAgent.
+    agent = AutoAgent()
+    agent.act("What's your name?")
+    assert len(agent.context) == 2
 
 
 @mock.patch("mbodied.agents.backends.OpenAIBackend.__init__", return_value=None)
@@ -259,11 +272,27 @@ def test_language_agent_act_and_parse_retry_history(mock_act):
 
     history = agent.history()
     assert len(history) == 2, f"Expected 2 messages in history, but got {len(history)}"
-    assert history[0].content == [
-        "Parse this. Avoid the following error: Error parsing response: 1 validation error for TestSample\nkey\n  Field required [type=missing, input_value={'invalid': 'json'}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.8/v/missing"
-    ]
+    # Compare the main part of the error message and avoid the version number in the URL
+    expected_message = (
+        "Parse this. Avoid the following error: Error parsing response: 1 validation error for TestSample\n"
+        "key\n  Field required [type=missing, input_value={'invalid': 'json'}, input_type=dict]\n"
+        "    For further information visit https://errors.pydantic.dev"
+    )
+    assert history[0].content[0].startswith(expected_message), f"Unexpected content: {history[0].content[0]}"
     assert history[1].content == ['{"key": "value"}']
 
 
+@pytest.mark.asyncio
+@pytest.mark.network
+async def test_async_act_and_stream():
+    agent = LanguageAgent(model_src="ollama")
+    chunks = []
+    async for chunk in agent.async_act_and_stream("Hello, how are you?"):
+        chunks.append(chunk)
+        print(f"Chunk: {chunk}")
+    assert len(chunks) > 1
+
+
 if __name__ == "__main__":
-    pytest.main(["-vv", __file__])
+    pytest.main(["-vv", __file__, "-m", "not asyncio"])
+    asyncio.run(pytest.main(["-vv", __file__, "-m", "asyncio"]))

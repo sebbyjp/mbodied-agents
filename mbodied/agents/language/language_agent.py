@@ -19,12 +19,14 @@ which can be set with a gym.Space object or any python object using the Sample c
 (see examples/using_sample.py for a tutorial), you can have the recorder infer the spaces
 by setting recorder="default" for automatic dataset recording.
 
-For example:
+Examples:
     >>> agent = LanguageAgent(context=SYSTEM_PROMPT, model_src=backend, recorder="default")
     >>> agent.act_and_record("pick up the fork", image)
 
 Alternatively, you can define the recorder separately to record the space you want.
-For example, to record the dataset with the image and instruction observation and AnswerAndActionsList as action:
+For example, to record the dataset with the image and instruction observation and AnswerAndActionsList as action.
+
+Examples:
     >>> observation_space = spaces.Dict({"image": Image(size=(224, 224)).space(), "instruction": spaces.Text(1000)})
     >>> action_space = AnswerAndActionsList(actions=[HandControl()] * 6).space()
     >>> recorder = Recorder(
@@ -33,7 +35,9 @@ For example, to record the dataset with the image and instruction observation an
     ...     observation_space=observation_space,
     ...     action_space=action_space
 
-To record:
+To record the dataset, you can use the record method of the recorder object.
+
+Examples:
     >>> recorder.record(
     ...     observation={
     ...         "image": image,
@@ -109,6 +113,30 @@ class LanguageAgent(Agent):
 
         Automatically act and record to dataset:
             >>> cognitive_agent.act_and_record("your instruction", image)
+
+        Stream the response:
+            >>> for chunk in cognitive_agent.act_and_stream("your instruction", image):
+            ...     print(chunk)
+
+    To use vLLM:
+    ```python
+    agent = LanguageAgent(
+        context=context,
+        model_src="openai",
+        model_kwargs={"api_key": "EMPTY", "base_url": "http://1.2.3.4:1234/v1"},
+    )
+    response = agent.act("Hello, how are you?", model="mistralai/Mistral-7B-Instruct-v0.3")
+    ```
+
+    To use ollama:
+    ```python
+    agent = LanguageAgent(
+        context="You are a robot agent.",
+        model_src="ollama",
+        model_kwargs={"endpoint": "http://localhost:11434/api/chat"},
+    )
+    response = agent.act("Hello, how are you?", model="llama3.1")
+    ```
     """
 
     _art_printed = False
@@ -147,7 +175,7 @@ class LanguageAgent(Agent):
                     If a string is provided, it will be interpreted as a user message. Defaults to None.
             api_key (str, optional): The API key to use for the remote actor (if applicable).
                  Defaults to the value of the OPENAI_API_KEY environment variable.
-            model_kwargs (dict, optional): Additional keyword arguments to pass to the model source.
+            model_kwargs (dict, optional): Additional keyword arguments to pass to the model source. Can be overidden at act time.
                 See the documentation of the specific backend for more details. Defaults to None.
             recorder (Union[str, Literal["default", "omit"]], optional):
                 The recorder configuration or name or action. Defaults to "omit".
@@ -232,7 +260,7 @@ class LanguageAgent(Agent):
         context: list | str | Image | Message = None,
         model=None,
         max_retries: int = 1,
-        record=False,
+        record: bool = False,
         **kwargs,
     ) -> Sample:
         """Responds to the given instruction, image, and context and parses the response into a Sample object.
@@ -249,11 +277,13 @@ class LanguageAgent(Agent):
             **kwargs: Additional keyword arguments.
         """
         original_instruction = instruction
+        kwargs = {**kwargs, "model": model}
+        model = kwargs.pop("model", None) or self.actor.DEFAULT_MODEL
         for attempt in range(max_retries + 1):
             if record:
-                response = self.act_and_record(instruction, image, context, model, **kwargs)
+                response = self.act_and_record(instruction, image, context, model=model, **kwargs)
             else:
-                response = self.act(instruction, image, context, model, **kwargs)
+                response = self.act(instruction, image, context, model=model, **kwargs)
             response = response[response.find("{") : response.rfind("}") + 1]
             try:
                 return parse_target.model_validate_json(response)
@@ -344,15 +374,16 @@ class LanguageAgent(Agent):
         Returns:
             str: The response to the instruction.
 
-        Example:
+        Examples:
             >>> agent.act("Hello, world!", Image("scene.jpeg"))
             "Hello! What can I do for you today?"
             >>> agent.act("Return a plan to pickup the object as a python list.", Image("scene.jpeg"))
             "['Move left arm to the object', 'Move right arm to the object']"
         """
         message, memory = self.prepare_inputs(instruction, image, context)
-        model = model or self.actor.DEFAULT_MODEL
-        response = self.actor.predict(message, memory, model=model, **kwargs)
+        kwargs = {**kwargs, "model": model}
+        model = kwargs.pop("model", None) or self.actor.DEFAULT_MODEL
+        response = self.actor.predict(message, context=memory, model=model, **kwargs)
         return self.postprocess_response(response, message, memory, **kwargs)
 
     def act_and_stream(
@@ -360,11 +391,10 @@ class LanguageAgent(Agent):
     ) -> Generator[str, None, str]:
         """Responds to the given instruction, image, and context and streams the response."""
         message, memory = self.prepare_inputs(instruction, image, context)
+        kwargs = {**kwargs, "model": model}
+        model = kwargs.pop("model", None) or self.actor.DEFAULT_MODEL
         response = ""
-        model = model or self.actor.DEFAULT_MODEL
-        kwargs.update({"model": model})
-
-        for chunk in self.actor.stream(message, memory, **kwargs):
+        for chunk in self.actor.stream(message, memory, model=model, **kwargs):
             response += chunk
             yield chunk
         return self.postprocess_response(response, message, memory, **kwargs)
@@ -372,16 +402,15 @@ class LanguageAgent(Agent):
     async def async_act_and_stream(
         self, instruction: str, image: Image = None, context: list | str | Image | Message = None, model=None, **kwargs
     ) -> AsyncGenerator[str, None]:
-        # TODO(sebastian): fix this. Response is None maybe due to three nested async yields.
-        # raise NotImplementedError("Async streaming is not supported for this agent.")
         message, memory = self.prepare_inputs(instruction, image, context)
-        model = model or self.actor.DEFAULT_MODEL
-        kwargs.update({"model": model})
+        kwargs = {**kwargs, "model": model}
+        model = kwargs.pop("model", None) or self.actor.DEFAULT_MODEL
         response = ""
-        async for chunk in self.actor.astream(message, memory, **kwargs):
+        async for chunk in self.actor.astream(message, context=memory, model=model, **kwargs):
             response += chunk
             yield chunk
         self.postprocess_response(response, message, memory, **kwargs)
+        return
 
 
 def main():
