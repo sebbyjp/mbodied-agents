@@ -12,6 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import os
+from typing import Literal
 from unittest import mock
 import pytest
 from mbodied.agents.backends import OpenAIBackend
@@ -30,7 +32,7 @@ def openai_api_key():
 
 
 @pytest.fixture
-def openai_backend(openai_api_key):
+def openai_backend(openai_api_key: Literal['fake_openai_api_key']):
     return OpenAIBackend(api_key=openai_api_key, client=FakeOpenAI())
 
 
@@ -243,12 +245,12 @@ async def test_language_agent_async_act_and_parse(mock_init, mock_openai_act):
 @mock.patch(
     "mbodied.agents.language.language_agent.LanguageAgent.act", side_effect=['{"invalid": "json"}', '{"key": "value"}']
 )
-def test_language_agent_act_and_parse_retry(mock_act):
+def test_language_agent_act_and_parse_retry(mock_act) -> None:
     from mbodied.types.sample import Sample
 
     class TestSample(Sample):
         key: str
-
+    os.environ["OPENAI_API_KEY"] = "fake_openai_api_key"
     agent = LanguageAgent()
     response = agent.act_and_parse("Parse this", parse_target=TestSample, max_retries=1)
     assert isinstance(response, TestSample)

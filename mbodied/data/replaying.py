@@ -25,7 +25,7 @@ from h5py import string_dtype
 from huggingface_hub import login
 from PIL import Image as PILImage
 
-from mbodied.data.utils import infer_features
+from mbodied.data import features
 from mbodied.types.sample import Sample
 from mbodied.types.sense.vision import Image as MbImage
 
@@ -309,11 +309,7 @@ class FolderReplayer:
                     state = sample[2] if len(sample) > 2 else None
                     image = np.asarray(observation["image"])
                     instruction = observation["instruction"]
-                    yield {
-                        "observation": {"image": image, "instruction": instruction},
-                        "action": action,
-                        "state": state,
-                    }
+                    yield {"observation": {"image": image, "instruction": instruction}, "action": action, "state": state}
 
 
 def to_dataset(folder: str, name: str, description: str = None, **kwargs) -> None:

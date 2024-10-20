@@ -3,8 +3,9 @@ from typing import TYPE_CHECKING
 
 import rich_click as click
 from rich.console import Console
-from rich.prompt import Prompt
 from rich.markdown import Markdown
+from rich.prompt import Prompt
+
 from mbodied import __version__
 from mbodied.utils.import_utils import smart_import
 

@@ -33,7 +33,7 @@ class Serializer(Sample):
     """
 
     wrapped: Any | None = None
-    model_config: ConfigDict = ConfigDict(arbitrary_types_allowed=True)
+    model_config = ConfigDict(arbitrary_types_allowed=True)
 
     def __init__(
         self,

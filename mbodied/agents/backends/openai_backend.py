@@ -14,12 +14,17 @@
 
 
 import os
+from collections.abc import AsyncIterator
 from typing import Any, List
 
 import backoff
 import httpx
 from anthropic import RateLimitError as AnthropicRateLimitError
+from openai import AsyncOpenAI, OpenAI
 from openai._exceptions import RateLimitError as OpenAIRateLimitError
+from openai.types.chat.chat_completion import ChatCompletion
+from openai.types.chat.chat_completion_chunk import ChatCompletionChunk
+from openai.types.chat.completion_create_params import CompletionCreateParams as ChatCompletionParams
 
 from mbodied.agents.backends.backend import Backend
 from mbodied.agents.backends.serializer import Serializer
@@ -67,7 +72,7 @@ class OpenAISerializer(Serializer):
         return {"type": "text", "text": text}
 
 
-class OpenAIBackendMixin(Backend):
+class OpenAIBackend(Backend[ChatCompletionParams]):
     """Backend for interacting with OpenAI's API.
 
     Attributes:
@@ -85,10 +90,8 @@ class OpenAIBackendMixin(Backend):
     def __init__(
         self,
         api_key: str | None = None,
-        client: Any | None = None,
         response_format: str = None,
-        aclient=False,
-        **kwargs,
+        **default_model_kwargs: ChatCompletionParams,
     ):
         """Initializes the OpenAIBackend with the given API key and client.
 
@@ -100,14 +103,10 @@ class OpenAIBackendMixin(Backend):
             **kwargs: Additional keyword arguments.
         """
         self.api_key = api_key or os.getenv("OPENAI_API_KEY") or os.getenv("MBODI_API_KEY")
-        self.client = client
-        if self.client is None:
-            from openai import AsyncOpenAI, OpenAI
-
-            kwargs.pop("model_src", None)
-            self.client = OpenAI(api_key=self.api_key or "any_key", **kwargs)
-            if aclient:
-                self.aclient = AsyncOpenAI(api_key=self.api_key or "any_key", **kwargs)
+        init_kwargs = {k: v for k, v in default_model_kwargs.items() if k in inspect.signature(OpenAI.__init__).parameters}
+        ainit_kwargs = {k: v for k, v in default_model_kwargs.items() if k in inspect.signature(AsyncOpenAI.__init__).parameters}
+        self.client = OpenAI(api_key=self.api_key, **init_kwargs)
+        self.aclient = AsyncOpenAI(api_key=self.api_key, **ainit_kwargs)
 
         self.serialized = OpenAISerializer
         self.response_format = response_format
@@ -119,8 +118,8 @@ class OpenAIBackendMixin(Backend):
         on_backoff=lambda details: print(f"Backing off {details['wait']:.1f} seconds after {details['tries']} tries."),  # noqa
     )
     def predict(
-        self, message: Message, context: List[Message] | None = None, model: Any | None = None, **kwargs
-    ) -> str:
+        self, message: Message, context: List[Message] | None = None, model: Any | None = None, **kwargs: ChatCompletionParams,
+    ) -> ChatCompletion:
         """Create a completion based on the given message and context.
 
         Args:
@@ -134,18 +133,22 @@ class OpenAIBackendMixin(Backend):
         """
         context = context or self.INITIAL_CONTEXT
         model = model or self.DEFAULT_MODEL
-        serialized_messages = [self.serialized(msg).serialize() for msg in context + [message]]
 
-        completion = self.client.chat.completions.create(
+        serialized_messages = [self.serialized(msg)() for msg in context + [message]]
+
+        completion: ChatCompletion = self.client.chat.completions.create(
             model=model,
             messages=serialized_messages,
             temperature=0,
             max_tokens=1000,
             **kwargs,
         )
-        return completion.choices[0].message.content
+        return completion
 
-    def stream(self, message: Message, context: List[Message] = None, model: str = "gpt-4o", **kwargs):
+    def stream(self,
+         message: Message, 
+        context: List[Message] = None, model: str = "gpt-4o",
+         **chat_completion_params: ChatCompletionParams) ->  Iterator[ChatCompletionChunk]:
         """Streams a completion for the given messages using the OpenAI API standard.
 
         Args:
@@ -157,17 +160,16 @@ class OpenAIBackendMixin(Backend):
         model = model or self.DEFAULT_MODEL
         context = context or self.INITIAL_CONTEXT
         serialized_messages = [self.serialized(msg).serialize() for msg in context + [message]]
-        stream = self.client.chat.completions.create(
+        yield from self.client.chat.completions.create(
             messages=serialized_messages,
             model=model,
             temperature=0,
             stream=True,
-            **kwargs,
+            **chat_completion_params,
         )
-        for chunk in stream:
-            yield chunk.choices[0].delta.content or ""
 
-    async def astream(self, message: Message, context: List[Message] = None, model: str = "gpt-4o", **kwargs):
+
+    async def astream(self, message: Message, context: List[Message] = None, model: str = "gpt-4o", **kwargs: ChatCompletionParams)-> Iterator[ChatCompletionChunk]:
         """Streams a completion asynchronously for the given messages using the OpenAI API standard.
 
         Args:
@@ -181,12 +183,12 @@ class OpenAIBackendMixin(Backend):
         model = model or self.DEFAULT_MODEL
         context = context or self.INITIAL_CONTEXT
         serialized_messages = [self.serialized(msg).serialize() for msg in context + [message]]
-        stream = await self.aclient.chat.completions.create(
+        chunks: AsyncIterator[ChatCompletionChunk] = await self.aclient.chat.completions.create(
             messages=serialized_messages,
             model=model,
             temperature=0,
             stream=True,
             **kwargs,
         )
-        async for chunk in stream:
+        async for chunk in chunks:
             yield chunk.choices[0].delta.content or ""

@@ -1,14 +1,13 @@
-import logging
-
-import numpy as np
-
-try:
-    import pyrealsense2 as rs
-except ImportError:
-    logging.warning("pyrealsense2 is not installed.")
 import base64
 import json
+import logging
+from typing import TYPE_CHECKING, Any
 
+import numpy as np
+from embdata.utils.import_utils import smart_import
+
+if TYPE_CHECKING:
+    import pyrealsense2.pyrealsense2 as rs
 
 class RealsenseCamera:
     """A class to handle capturing images from an Intel RealSense camera and encoding camera intrinsics.
@@ -33,6 +32,7 @@ class RealsenseCamera:
             height (int): Height of the image frames.
             fps (int): Frames per second for the video stream.
         """
+        rs = smart_import("pyrealsense2.pyrealsense2")
         self.width = width
         self.height = height
         self.fps = fps
@@ -44,14 +44,16 @@ class RealsenseCamera:
         self.depth_sensor = self.profile.get_device().first_depth_sensor()
         self.depth_scale = self.depth_sensor.get_depth_scale()
         self.align = rs.align(rs.stream.color)
+        self.rs = rs
 
-    def capture_realsense_images(self) -> tuple[np.ndarray, np.ndarray, rs.intrinsics, np.ndarray]:
+    def capture_realsense_images(self) -> tuple[np.ndarray, np.ndarray, "rs.intrinsics", np.ndarray]:
         """Capture color and depth images from the RealSense camera along with intrinsics.
 
         Returns:
             tuple: color_image (np.ndarray), depth_image (np.ndarray),
                    intrinsics (rs.intrinsics), intrinsics_matrix (np.ndarray)
         """
+        rs = self.rs
         while True:
             frames = self.pipeline.wait_for_frames()
             aligned_frames = self.align.process(frames)
@@ -70,7 +72,7 @@ class RealsenseCamera:
             return color_image, depth_image, intrinsics
 
     @staticmethod
-    def serialize_intrinsics(intrinsics: rs.intrinsics) -> dict:
+    def serialize_intrinsics(intrinsics: "rs.intrinsics") -> dict:
         """Serialize camera intrinsics to a dictionary.
 
         Args:
@@ -103,7 +105,7 @@ class RealsenseCamera:
         return intrinsics_dict
 
     @staticmethod
-    def intrinsics_to_base64(intrinsics: rs.intrinsics) -> str:
+    def intrinsics_to_base64(intrinsics: "rs.intrinsics") -> str:
         """Convert camera intrinsics to a base64 string.
 
         Args:
@@ -117,7 +119,7 @@ class RealsenseCamera:
         return base64.b64encode(intrinsics_json.encode("utf-8")).decode("utf-8")
 
     @staticmethod
-    def base64_to_intrinsics(base64_str: str) -> rs.intrinsics:
+    def base64_to_intrinsics(base64_str: str) -> "rs.intrinsics":
         """Convert a base64 encoded string to an rs.intrinsics object.
 
         Args:
@@ -156,7 +158,7 @@ class RealsenseCamera:
         image_width: int,
         matrix: np.ndarray,
         coeffs: np.ndarray,
-    ) -> rs.intrinsics:
+    ) -> "rs.intrinsics":
         """Convert a 3x3 intrinsic matrix and a 1x5 distortion coefficients array to an rs.intrinsics object.
 
         Args:
@@ -208,13 +210,13 @@ class RealsenseCamera:
         return intrinsics
 
     @staticmethod
-    def pixel_to_3dpoint_realsense(centroid: tuple, depth: float, realsense_intrinsics: object) -> np.ndarray:
+    def pixel_to_3dpoint_realsense(centroid: tuple, depth: float, realsense_intrinsics: "rs.intrinsics") -> np.ndarray:
         """Convert a 2D pixel coordinate to a 3D point using the depth and camera intrinsics.
 
         Args:
             centroid (tuple): The (u, v) coordinates of the pixel.
             depth (float): The depth value at the pixel.
-            realsense_intrinsics (object): Camera intrinsics.
+            realsense_intrinsics (rs.intrinsics): Camera intrinsics.
 
         Returns:
             np.ndarray: The 3D coordinates of the point.
@@ -224,6 +226,7 @@ class RealsenseCamera:
             >>> estimator.pixel_to_3dpoint_realsense((320, 240), 1.5, realsense_intrinsics)
         """
         u, v = centroid
+        rs = smart_import("pyrealsense2.pyrealsense2")
         points = rs.rs2_deproject_pixel_to_point(realsense_intrinsics, [u, v], depth)
         return np.array(points)
 

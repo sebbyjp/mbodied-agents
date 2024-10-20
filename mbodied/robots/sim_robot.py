@@ -13,21 +13,24 @@
 # limitations under the License.
 import time
 from pathlib import Path
+from typing import Generic, TypeVar
 
 from mbodied.robots import Robot
 from mbodied.types.motion.control import HandControl
+from mbodied.types.sample import Sample
 from mbodied.types.sense.vision import Image
 
+ObsT, StaT, ActT, SupT = TypeVar("ObsT", bound=Sample), TypeVar("StateT", bound=Sample), TypeVar("ActionT", bound=Sample), TypeVar("SupT")
 
-class SimRobot(Robot):
+class MockRobot(Robot, Generic[ObsT, StaT, ActT, SupT]):
     """A simulated robot interface for testing and validating purposes.
 
     This class simulates the interface between the robot arm and the control system.
     do() simulates the execution of HandControl motions that got executed in execution_time.
 
     Attributes:
-        home_pos: The home position of the robot arm.
-        current_pos: The current position of the robot arm.
+        home_state: The default state of the robot arm.
+        current_state: The current state of the robot arm.
     """
 
     def __init__(self, execution_time: float = 1.0):
@@ -42,47 +45,77 @@ class SimRobot(Robot):
         self.home_pos = [0, 0, 0, 0, 0, 0, 0]
         self.current_pos = self.home_pos
 
-    def do(self, motion: HandControl | list[HandControl]) -> list[float]:
-        """Executes HandControl motions and returns the new position of the robot arm.
+    # def step(self, action: ActT | list[ActT], state: StaT | None = None,  duration: float | None = None) -> StaT:
+    #     """Executes an action or sequence of actions and returns the new state.
 
-        This simulates the execution of each motion for self.execution_time. It divides the motion into 10 steps.
+    #     Ensures uniform execution time for each action over duration if specified.
 
-        Args:
-            motion: The HandControl motion to be executed.
-        """
-        if not isinstance(motion, list):
-            motion = [motion]
-        for m in motion:
-            print("Executing motion:", m)  # noqa: T201
+    #     Args:
+    #         motion: The motion to execute, commonly referred to as an action.
+    #         num_steps: The number of steps to divide the motion into.
+    #     """
+    #     if not isinstance(action, Sample | list[Sample]):
+    #         raise TypeError("Action must be a Sample or a list of Samples to determine the motion.")
+    #     tic = time.time()
+    #     if isinstance(action, list):
+    #         for act in action:
+    #             while time.time() - tic < self.execution_time / num_steps:
+    #                 pass
 
-            # Number of steps to divide the motion into
-            steps = 10
-            sleep_duration = self.execution_time / steps
-            step_motion = [value / steps for value in m.flatten()]
-            for _ in range(steps):
-                self.current_pos = [round(x + y, 5) for x, y in zip(self.current_pos, step_motion)]
-                time.sleep(sleep_duration)
+    #             self.state: Sample = self.do(act / num_steps)
 
-            print("New position:", self.current_pos)  # noqa: T201
+    #         # Number of steps to divide the motion into
+    #         step_motion = [value / num_steps for value in action.flatten()]
+    #         for _ in range(num_steps):
+    #             self.current_pos = [round(x + y, 5) for x, y in zip(self.current_pos, step_motion, strict=False)]
+    #             time.sleep(sleep_duration)
 
-        return self.current_pos
+    #         print("New position:", self.current_pos)  # noqa: T201
 
-    def capture(self, **_) -> Image:
+    #     return self.current_pos
+
+    def capture(self, **_) -> ObsT:
         """Captures an image."""
         resource = Path("resources") / "xarm.jpeg"
         return Image(resource, size=(224, 224))
 
-    def get_observation(self) -> Image:
+    def observe(self) -> ObsT:
         """Alias of capture for recording."""
         return self.capture()
 
-    def get_state(self) -> HandControl:
+    def infer(self) -> StaT:
         """Gets the current pose of the robot arm.
 
         Returns:
             list[float]: A list of the current pose values [x, y, z, r, p, y, grasp].
         """
-        return HandControl.unflatten(self.current_pos)
+        return self.state
+
+
+class MockImageHandRobot(MockRobot[Image, HandControl, HandControl, None]):
+    """A simulated robot interface for testing and validating purposes.
+
+    This class simulates the interface between the robot arm and the control system.
+    do() simulates the execution of HandControl motions that got executed in execution_time.
+
+    Attributes:
+        home_state: The default state of the robot arm.
+        current_state: The current state of the robot arm.
+    """
+
+    def __init__(self, execution_time: float = 1.0):
+        """Initializes the SimRobot and sets up the robot arm.
+
+        Args:
+            execution_time: The time it takes to execute a motion.
+        """
+        super().__init__(execution_time)
+
+    def capture(self, **_) -> ObsT:
+        """Captures an image."""
+        resource = Path("resources") / "xarm.jpeg"
+        return Image(resource, size=(224, 224))
+
 
     def prepare_action(self, old_pose: HandControl, new_pose: HandControl) -> HandControl:
         """Calculates the action between two poses."""

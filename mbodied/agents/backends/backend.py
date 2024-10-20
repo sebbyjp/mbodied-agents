@@ -12,16 +12,26 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 from abc import abstractmethod
-from typing import Generator
 
+from typing_extensions import Generator, Generic, ParamSpec, TypeVar
 
-class Backend:
+P = ParamSpec('P')
+T = TypeVar('T')
+class Backend(Generic[P, T]):
     """Base class for agent backends."""
 
     @abstractmethod
-    def predict(self, *args, **kwargs) -> str:
+    def predict(self, *args: P.args, **kwargs: P.kwargs) -> T:
         raise NotImplementedError
 
     @abstractmethod
-    def stream(self, *args, **kwargs) -> Generator[str, None, None]:
+    def stream(self, *args: P.args, **kwargs: P.kwargs) -> Generator[T, None, None]:
         raise NotImplementedError
+    
+    def apredict(self, *args: P.args, **kwargs: P.kwargs) -> T:
+        raise NotImplementedError
+    
+    def astream(self, *args: P.args, **kwargs: P.kwargs) -> Generator[T, None, None]:
+        raise NotImplementedError
+    
+    

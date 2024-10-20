@@ -17,24 +17,40 @@ import logging
 from collections import OrderedDict
 from enum import Enum
 from pathlib import Path
-from typing import Any, Dict, List, Literal, Sequence, Union, get_origin
+from typing import ItemsView, Iterator
 
 import numpy as np
 from datasets import Dataset
 from gymnasium import spaces
 from jsonref import replace_refs
-from pydantic import BaseModel, ConfigDict, ValidationError
+from pydantic import BaseModel, ConfigDict, TypeAdapter, ValidationError
 from pydantic.fields import FieldInfo
 from pydantic_core import from_json
-from typing_extensions import Annotated
+from typing_extensions import (
+    Annotated,
+    Any,
+    Dict,
+    Generic,
+    List,
+    Literal,
+    MutableMapping,
+    ParamSpec,
+    Sequence,
+    TypeVar,
+    TypeVarTuple,
+    Union,
+    get_origin,
+)
 
 from mbodied.data.utils import to_features
 from mbodied.utils.import_utils import smart_import
 
 Flattenable = Annotated[Literal["dict", "np", "pt", "list"], "Numpy, PyTorch, list, or dict"]
 
-
-class Sample(BaseModel):
+KT = TypeVar("KT")
+VTs = TypeVarTuple("VTs")
+P = ParamSpec("P")
+class Sample(BaseModel, MutableMapping):
     """A base model class for serializing, recording, and manipulating arbitray data.
 
     It was designed to be extensible, flexible, yet strongly typed. In addition to
@@ -73,7 +89,40 @@ class Sample(BaseModel):
 
     __doc__ = "A base model class for serializing, recording, and manipulating arbitray data."
 
-    model_config: ConfigDict = ConfigDict(
+    def __delitem__(self, key: str) -> None:
+        """Delete an item from the Sample instance."""
+        del self.__dict__[key]
+    
+    def __iter__(self) -> Any:
+        """Return an iterator for the Sample instance."""
+        return super().__iter__()
+    
+    def __setitem__(self, key: str, value: Any) -> None:
+        """Set an item in the Sample instance."""
+        if key.startswith("_") and key not in self.model_fields | self.model_extra | type(self).__pydantic_private__:
+            raise AttributeError(f"Attribute {key} has no setter")
+        self.__dict__[key] = value
+    
+    def __len__(self) -> int:
+        """Return the length of the Sample instance."""
+        return len(self.__dict__)
+    
+    def __getitem__(self, key: str) -> Any:
+        """Get an item from the Sample instance."""
+        if isinstance(key, tuple):
+            key = key[0]
+        if key.startswith("_") and key not in self.model_fields | self.model_extra | type(self).__pydantic_private__:
+            raise AttributeError(f"Attribute {key} has no getter")
+        return getattr(self, key)
+    
+    def __setitem__(self, key: str, value: Any) -> None:
+        """Set an item in the Sample instance."""
+        if key.startswith("_") and key not in self.model_fields | self.model_extra | type(self).__pydantic_private__:
+            raise AttributeError(f"Attribute {key} has no setter")
+        setattr(self, key, value)
+        self.__dict__[key] = value
+
+    model_config = ConfigDict(
         use_enum_values=False,
         from_attributes=True,
         validate_assignment=False,
@@ -100,6 +149,9 @@ class Sample(BaseModel):
         """Return a string representation of the Sample instance."""
         return f"{self.__class__.__name__}({', '.join([f'{k}={v}' for k, v in self.dict().items() if v is not None])})"
 
+    def items(self) -> Iterator[tuple[str, Any]]:
+        """Return the items of the Sample instance."""
+        yield from [(k, v) for k, v in self.__dict__.items() if v is not None]
     def dict(self, exclude_none=True, exclude: set[str] = None) -> Dict[str, Any]:
         """Return the Sample object as a dictionary with None values excluded.
 
@@ -420,7 +472,7 @@ class Sample(BaseModel):
         return cls(d)
 
     @classmethod
-    def from_flat_dict(cls, flat_dict: Dict[str, Any], schema: Dict = None) -> "Sample":
+    def from_flat_dict(cls, flat_dict: Dict[str, Any], schema: Dict | None = None) -> "Sample":
         """Initialize a Sample instance from a flattened dictionary."""
         """
         Reconstructs the original JSON object from a flattened dictionary using the provided schema.
@@ -447,9 +499,9 @@ class Sample(BaseModel):
         return reconstructed
 
     @classmethod
-    def from_space(cls, space: spaces.Space) -> "Sample":
+    def from_space(cls, space: spaces.Space | np.ndarray) -> "Sample":
         """Generate a Sample instance from a Gym space."""
-        sampled = space.sample()
+        sampled = space.sample() if isinstance(space, spaces.Space) else space
         if isinstance(sampled, dict | OrderedDict):
             return cls(**sampled)
         if hasattr(sampled, "__len__") and not isinstance(sampled, str):

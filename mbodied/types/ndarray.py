@@ -25,8 +25,7 @@ try:
     from numpy.core._exceptions import UFuncTypeError  # noqa
 except (ImportError, ModuleNotFoundError, AttributeError, NameError):
   try:
-    pass
-    from numpy._core._exceptions import UFuncTypeError 
+    from numpy._core._exceptions import UFuncTypeError
   except (ImportError, ModuleNotFoundError, AttributeError, NameError):
     from numpy._core.exceptions import UFuncTypeError
     

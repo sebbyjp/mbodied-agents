@@ -220,10 +220,13 @@ line-ending = "auto"
 
 [tool.uv]
 dev-dependencies = [
+    "hatch>=1.13.0",
+    "mypy>=1.12.0",
     "perftest>=0.0.2",
     "pytest-asyncio>=0.24.0",
     "pytest-mock>=3.14.0",
     "pytest>=8.3.3",
+    "twine>=5.1.1",
 ]
 
 [tool.ruff.lint.pydocstyle]

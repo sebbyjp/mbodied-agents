@@ -2,7 +2,7 @@ import importlib
 import sys
 from importlib.util import LazyLoader, find_spec, module_from_spec
 from types import ModuleType
-from typing import Literal
+from typing import Literal, TypeVar
 
 
 def reload(module: str) -> None:
@@ -21,8 +21,8 @@ def reload(module: str) -> None:
         return importlib.reload(globals()[module])
     return importlib.import_module(module)
 
-
-def smart_import(name: str, mode: Literal["lazy"] | None = None) -> ModuleType:
+T = TypeVar("T")
+def smart_import(name: str, mode: Literal["lazy"] | None = None) -> ModuleType | T:
     """Import a module with optional lazy loading.
 
     This function imports a module by name. If the module is already

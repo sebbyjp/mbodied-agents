@@ -4,7 +4,7 @@ from typing import AsyncGenerator, Generator, List, overload
 
 import httpx
 
-from mbodied.agents.backends.openai_backend import OpenAIBackendMixin
+from mbodied.agents.backends.openai_backend import Backend
 from mbodied.agents.backends.serializer import Serializer
 from mbodied.types.message import Message
 from mbodied.types.sense import Image
@@ -53,7 +53,7 @@ class HttpxSerializer(Serializer):
         return response
 
 
-class HttpxBackend(OpenAIBackendMixin):
+class HttpxBackend(Backend):
     SERIALIZER = HttpxSerializer
     DEFAULT_SRC = "https://api.reka.ai/v1/chat"
     DEFAULT_MODEL = "reka-core-20240501"
